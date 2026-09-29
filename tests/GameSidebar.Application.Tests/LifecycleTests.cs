@@ -49,9 +49,15 @@ public sealed class LifecycleTests
         Assert.Equal(3, manager.Current.GeometryVersion);
 
         var timestampOnly = await NextRead(provider, time);
-        timestampOnly.SetResult(Result(Candidate, x: -250));
-        await WaitFor(manager, s => s.ObservedAt > DateTimeOffset.UnixEpoch.AddMilliseconds(600));
-        Assert.Equal(3, manager.Current.GeometryVersion);
+        var updated = new TaskCompletionSource<GameSessionSnapshot>(TaskCreationOptions.RunContinuationsAsynchronously);
+        void OnUpdate(GameSessionSnapshot snapshot) => updated.TrySetResult(snapshot);
+        manager.Updated += OnUpdate;
+        try
+        {
+            timestampOnly.SetResult(Result(Candidate, x: -250));
+            Assert.Equal(3, (await updated.Task.WaitAsync(TimeSpan.FromSeconds(5))).GeometryVersion);
+        }
+        finally { manager.Updated -= OnUpdate; }
     }
 
     [Fact]

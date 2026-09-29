@@ -136,8 +136,9 @@ public sealed class SessionTests
         Assert.Null(await manager.BindAsync(candidate));
         if (!provider.TrackingStarted.Task.IsCompleted)
         {
-            await time.TimerCreated.WaitAsync(TimeSpan.FromSeconds(5));
-            time.Advance(TimeSpan.FromMilliseconds(200));
+            var timerCreated = time.TimerCreated;
+            if (await Task.WhenAny(provider.TrackingStarted.Task, timerCreated).WaitAsync(TimeSpan.FromSeconds(5)) == timerCreated)
+                time.Advance(TimeSpan.FromMilliseconds(200));
         }
         await provider.TrackingStarted.Task.WaitAsync(TimeSpan.FromSeconds(5));
         for (var i = 0; i < 20; i++) time.Advance(TimeSpan.FromSeconds(1));
