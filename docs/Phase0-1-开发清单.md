@@ -186,7 +186,7 @@ Normalized 与 Capture 坐标的完整实现留到后续阶段；Phase 1 落实 
 
 ### P0-03｜最小 CI 与 Windows 验收产物
 
-依赖：P0-01、P0-02。远端未配置时先交付工作流文件并标注“未运行”。
+依赖：P0-01、P0-02。工作流推送到远端后，以实际运行记录核对结果。
 
 - [ ] Windows 固定 runner 镜像大版本，安装锁定 SDK，执行 restore / Release build / tests。
 - [ ] 添加 Mac 构建与纯托管测试任务；Apple Silicon 上的本地 Demo 运行另行记录，不将任意 Mac runner 当作 M5 真机。
@@ -424,15 +424,15 @@ A07–A09 只验证数据读取和状态，侧边栏的跨屏跟随验收仍属�
 
 ## 9. 工程实施记录（2026-09-29）
 
-本地 Git 已初始化，未配置远端。P0-01 的文件与版本证据见根目录 `global.json`、`Directory.*.props`、各项目及 lock files；直接依赖选择见 `README.md`。其余任务已编写主要实现，但完成条件含 Windows 交互桌面验证，故保留未勾选。具体状态：
+本地 Git 已初始化并配置 GitHub 仓库 `xiaogewzw/ArkSide`。P0-01 的文件与版本证据见根目录 `global.json`、`Directory.*.props`、各项目及 lock files；直接依赖选择见 `README.md`。其余任务已编写主要实现，但完成条件含 Windows 交互桌面验证，故保留未勾选。具体状态：
 
 | 任务 | 已落地的主要文件/证据 | 尚缺的完成条件 |
 | --- | --- | --- |
-| P0-02–03 | `src/GameSidebar.App/`、`.github/workflows/build.yml`、本机交叉发布 ZIP | Windows UI 真机启动、远端 CI 运行 |
+| P0-02–03 | `src/GameSidebar.App/`、`.github/workflows/build.yml`、本机交叉发布 ZIP | Windows UI 真机启动、远端 CI 结果核对 |
 | P1-01–02 | `src/GameSidebar.Core/`、`assets/profiles/`、Core tests | 更多配置故障回归 |
 | P1-03–04 | `src/GameSidebar.Platform.Windows/` | Windows Geometry/DPI 真机核对 |
 | P1-05–06 | `GameSessionManager.cs`、`WindowTracker.cs`、Application tests | Windows 长时及资源验收 |
-| P1-07–09 | App ViewModel、Storage、Demo；Mac 进程启动 | Mac 界面逐项检查、Windows UI 流程、设置损坏测试 |
-| P1-10–11 | `tools/GameSidebar.TestWindow/`、`docs/testing/phase1-acceptance.md` | Windows 受控窗口/无 SDK 解压/多 DPI/A20 |
+| P1-07–09 | App ViewModel、Storage、Demo；Mac 进程启动及设置损坏测试 | Mac 界面逐项检查、Windows UI 流程 |
+| P1-10–11 | `tools/GameSidebar.TestWindow/`、`docs/testing/phase1-acceptance.md`、`docs/testing/windows-phase1-checklist.md` | Windows 受控窗口/无 SDK 解压/多 DPI/A20 |
 
-本机 Release 构建 0 警告，Core 4 项与 Application 11 项通过，Windows 平台测试在 Mac 上明确 skipped。交叉发布文件位于被忽略的 `artifacts/`，需要交付时可复制；它们未在 Windows 运行。工程验收和真实游戏验收均尚未宣称完成。
+本机 Release 构建 0 警告，Core 4 项与 Application 20 项通过，Windows 平台测试在 Mac 上明确 skipped。交叉发布文件位于被忽略的 `artifacts/`；它们未在 Windows 运行。工程验收和真实游戏验收均尚未宣称完成。

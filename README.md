@@ -29,7 +29,7 @@ dotnet build GameSidebar.sln -c Release --no-restore
 dotnet test GameSidebar.sln -c Release --no-build --no-restore
 ```
 
-`.github/workflows/build.yml` 使用 `macos-15` 与 `windows-2025`，固定 SDK，上传测试结果和独立 ZIP。远端仓库尚未配置，CI 未执行。本机 Mac 可交叉生成 self-contained win-x64 ZIP，但它不能替代 Windows 桌面启动与 DPI 验收。详见 [验收记录](docs/testing/phase1-acceptance.md)。
+`.github/workflows/build.yml` 使用 `macos-15` 与 `windows-2025`，固定 SDK，上传测试结果和独立 ZIP。[GitHub Releases](https://github.com/xiaogewzw/ArkSide/releases) 提供可下载的 Windows 验收候选 ZIP；源码 ZIP 不能直接运行。本机 Mac 可交叉生成 self-contained win-x64 ZIP，但它不能替代 Windows 桌面启动与 DPI 验收。详见 [验收记录](docs/testing/phase1-acceptance.md)和 [Windows 逐项验收清单](docs/testing/windows-phase1-checklist.md)。
 
 ## 依赖基线（2026-09-29）
 
