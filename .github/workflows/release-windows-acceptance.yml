@@ -1,0 +1,68 @@
+name: Publish Windows acceptance ZIPs
+
+on:
+  workflow_dispatch:
+    inputs:
+      source_run_id:
+        description: Successful Build and test run containing the Windows ZIP artifacts
+        required: true
+        type: string
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-24.04
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      GH_REPO: ${{ github.repository }}
+      SOURCE_RUN_ID: ${{ inputs.source_run_id }}
+    steps:
+      - name: Verify source run and download both ZIPs
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ "$SOURCE_RUN_ID" =~ ^[0-9]+$ ]]
+          conclusion="$(gh run view "$SOURCE_RUN_ID" --json conclusion --jq '.conclusion')"
+          test "$conclusion" = success
+          source_sha="$(gh run view "$SOURCE_RUN_ID" --json headSha --jq '.headSha')"
+          echo "SOURCE_SHA=$source_sha" >> "$GITHUB_ENV"
+          gh run download "$SOURCE_RUN_ID" -n GameSidebar-win-x64 -D release/app
+          gh run download "$SOURCE_RUN_ID" -n TestWindow-win-x64 -D release/test-window
+          test -f release/app/GameSidebar-win-x64.zip
+          test -f release/test-window/TestWindow-win-x64.zip
+
+      - name: Validate package contents and record hashes
+        shell: bash
+        run: |
+          set -euo pipefail
+          unzip -tq release/app/GameSidebar-win-x64.zip
+          unzip -tq release/test-window/TestWindow-win-x64.zip
+          unzip -Z1 release/app/GameSidebar-win-x64.zip | grep -Fx 'GameSidebar.App.exe'
+          unzip -Z1 release/app/GameSidebar-win-x64.zip | grep -Fx 'profiles/diagnostic-1920x1080.json'
+          unzip -Z1 release/test-window/TestWindow-win-x64.zip | grep -Fx 'GameSidebar.TestWindow.exe'
+          (cd release/app && sha256sum GameSidebar-win-x64.zip) > release/SHA256SUMS.txt
+          (cd release/test-window && sha256sum TestWindow-win-x64.zip) >> release/SHA256SUMS.txt
+          cat release/SHA256SUMS.txt
+
+      - name: Publish prerelease
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > release/NOTES.md <<EOF
+          Windows x64 Phase 1 acceptance candidate from successful [Mac/Windows CI run](https://github.com/$GH_REPO/actions/runs/$SOURCE_RUN_ID), source commit \`$SOURCE_SHA\`.
+
+          Download both ZIPs below, verify them with SHA256SUMS.txt, then follow the [Windows acceptance checklist](https://github.com/$GH_REPO/blob/$SOURCE_SHA/docs/testing/windows-phase1-checklist.md).
+
+          These are self-contained builds. Windows interactive desktop, DPI, clean-machine startup, and long-running checks remain for manual acceptance. The target game is not yet configured or validated.
+          EOF
+          gh release create phase1-windows-acceptance-2026-09-29 \
+            release/app/GameSidebar-win-x64.zip \
+            release/test-window/TestWindow-win-x64.zip \
+            release/SHA256SUMS.txt \
+            --target "$SOURCE_SHA" \
+            --title 'Phase 1 Windows acceptance candidate (2026-09-29)' \
+            --prerelease \
+            --notes-file release/NOTES.md

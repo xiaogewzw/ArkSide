@@ -428,11 +428,11 @@ A07–A09 只验证数据读取和状态，侧边栏的跨屏跟随验收仍属�
 
 | 任务 | 已落地的主要文件/证据 | 尚缺的完成条件 |
 | --- | --- | --- |
-| P0-02–03 | `src/GameSidebar.App/`、`.github/workflows/build.yml`、本机交叉发布 ZIP | Windows UI 真机启动、远端 CI 结果核对 |
+| P0-02–03 | `src/GameSidebar.App/`、`.github/workflows/build.yml`、本机交叉发布 ZIP；[Mac/Windows CI 通过](https://github.com/xiaogewzw/ArkSide/actions/runs/36579227426) | Windows UI 真机启动 |
 | P1-01–02 | `src/GameSidebar.Core/`、`assets/profiles/`、Core tests | 更多配置故障回归 |
 | P1-03–04 | `src/GameSidebar.Platform.Windows/` | Windows Geometry/DPI 真机核对 |
 | P1-05–06 | `GameSessionManager.cs`、`WindowTracker.cs`、Application tests | Windows 长时及资源验收 |
 | P1-07–09 | App ViewModel、Storage、Demo；Mac 进程启动及设置损坏测试 | Mac 界面逐项检查、Windows UI 流程 |
 | P1-10–11 | `tools/GameSidebar.TestWindow/`、`docs/testing/phase1-acceptance.md`、`docs/testing/windows-phase1-checklist.md` | Windows 受控窗口/无 SDK 解压/多 DPI/A20 |
 
-本机 Release 构建 0 警告，Core 4 项与 Application 20 项通过，Windows 平台测试在 Mac 上明确 skipped。交叉发布文件位于被忽略的 `artifacts/`；它们未在 Windows 运行。工程验收和真实游戏验收均尚未宣称完成。
+本机 Release 构建 0 警告，Core 4 项与 Application 20 项通过，Windows 平台测试在 Mac 上明确 skipped。GitHub Windows CI 的同一套测试与 1 项平台测试通过，并完成 self-contained ZIP 打包；它没有交互桌面验收。交叉发布文件位于被忽略的 `artifacts/`；它们未在 Windows 运行。工程验收和真实游戏验收均尚未宣称完成。

@@ -8,10 +8,10 @@
 | --- | --- | --- |
 | Mac Release 构建 | 通过 | `dotnet build GameSidebar.sln -c Release -p:ContinuousIntegrationBuild=true --no-restore`，0 警告 |
 | Mac Core / Application 测试 | 通过 | 4 + 20 项；含负坐标、Profile 歧义、迟到结果、解绑、非重入轮询、发现 0/1/2 候选、正则超时、尺寸/最小化/恢复和停止搜索语义 |
-| Windows 平台测试 | 待执行 | Mac 上 1 项显式 skipped；需 Windows 运行 |
+| Windows CI 平台测试 | 通过 | Windows runner 上 Core 4、Application 20、Windows 平台 1 项全部通过；交互桌面检查仍待真机 |
 | Mac Demo 主窗口启动 | 通过（界面操作待核对） | 本机进程日志出现 `Main window opened in Demo mode` 与 `Starting -> NotConfigured`；图形自动化入口超时，未完成界面逐项操作 |
-| 本机交叉发布 | 待本轮重新打包 | self-contained win-x64 主程序与 TestWindow 分包；最终 SHA256 以 Release 发布页和下文为准，尚未在 Windows 运行 |
-| GitHub Actions | 待本轮推送后核对 | Mac/Windows 构建、测试和 Windows 打包 |
+| 本机交叉发布 | 通过 | self-contained win-x64 主程序（SHA256 `f3f0904d3d1846e7cb1eb8a032030164a851a3bb7634b1c571eb9277a1d59190`）和 TestWindow（`8fa6c718c6fe0cde8d4620a55b04b9cc64e4cf33183de8f89888d3b56eb8cf6c`）分包，核对 exe 与内置 Profile；这些是本机产物，Release 以其自身 `SHA256SUMS.txt` 为准 |
+| GitHub Actions | 通过 | [运行 36579227426](https://github.com/xiaogewzw/ArkSide/actions/runs/36579227426)：Mac/Windows 构建和测试、Windows self-contained 发布及 ZIP 内容检查全绿；不包含交互桌面验收 |
 | Windows 无 SDK 解压启动 | 待执行 | 需 Windows 干净环境 |
 | Windows 10 22H2 | 待执行 | 兼容目标保留 |
 | 真实目标游戏 | 待执行 | gameId/exe/规则未提供 |
@@ -61,4 +61,4 @@
 
 ## 当前交接结论
 
-本机完成工程构建、托管逻辑回归与 Demo 启动检查。Windows 受控窗口绑定、多 DPI、无 SDK 启动和长时运行未验证，Phase 1 工程验收尚未完成；真实游戏 A20 另列待验收。
+本机完成工程构建、托管逻辑回归、Demo 启动和 win-x64 交叉打包；GitHub Windows CI 也通过编译、自动测试与 ZIP 打包。Windows 受控窗口绑定、多 DPI、无 SDK 启动和长时运行未验证，Phase 1 工程验收尚未完成；真实游戏 A20 另列待验收。
