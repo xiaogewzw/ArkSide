@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -38,23 +37,9 @@ internal static class WindowNative
         NativeMethods.GetClassName(hwnd, className, className.Capacity);
         var style = NativeMethods.GetWindowLongPtr(hwnd, -20).ToInt64();
         var cloaked = NativeMethods.DwmGetWindowAttribute(hwnd, 14, out int cloak, sizeof(int)) == 0 && cloak != 0;
-        string? exe = null;
-        DateTimeOffset? started = null;
-        WindowOperationError? error = null;
-        try
-        {
-            using var process = Process.GetProcessById(checked((int)pid));
-            try { started = new DateTimeOffset(process.StartTime); }
-            catch (Exception e) when (e is System.ComponentModel.Win32Exception or InvalidOperationException)
-            { error = new(WindowErrorCode.PermissionDenied, $"无法读取进程创建时间：{e.Message}"); }
-            try { exe = Path.GetFileName(process.MainModule?.FileName); }
-            catch (Exception e) when (e is System.ComponentModel.Win32Exception or InvalidOperationException)
-            { error ??= new(WindowErrorCode.PermissionDenied, $"无法读取进程路径：{e.Message}"); }
-        }
-        catch (Exception e) when (e is ArgumentException or InvalidOperationException or System.ComponentModel.Win32Exception)
-        { error = new(WindowErrorCode.WindowDestroyed, $"进程不可用：{e.Message}"); }
-        return new(id, checked((int)pid), exe, title.ToString(), className.ToString(), started,
+        var process = WindowsProcessInfo.Read(pid);
+        return new(id, checked((int)pid), process.Executable, title.ToString(), className.ToString(), process.StartedAt,
             NativeMethods.IsWindowVisible(hwnd), NativeMethods.IsIconic(hwnd), (style & 0x80) != 0,
-            cloaked, NativeMethods.GetWindow(hwnd, 4) != 0, pid == Environment.ProcessId, error);
+            cloaked, NativeMethods.GetWindow(hwnd, 4) != 0, pid == Environment.ProcessId, process.Error);
     }
 }

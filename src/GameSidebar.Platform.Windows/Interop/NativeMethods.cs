@@ -35,4 +35,12 @@ internal static class NativeMethods
     [DllImport("user32.dll")] internal static extern nint GetForegroundWindow();
     [DllImport("dwmapi.dll", PreserveSig = true)] internal static extern int DwmGetWindowAttribute(nint hwnd, uint attribute, out Rect value, uint size);
     [DllImport("dwmapi.dll", PreserveSig = true)] internal static extern int DwmGetWindowAttribute(nint hwnd, uint attribute, out int value, uint size);
+    [StructLayout(LayoutKind.Sequential)] internal struct FileTime { public uint Low, High; }
+    [DllImport("kernel32.dll", SetLastError = true)] internal static extern nint OpenProcess(uint access, [MarshalAs(UnmanagedType.Bool)] bool inherit, uint pid);
+    [DllImport("kernel32.dll", SetLastError = true)] [return: MarshalAs(UnmanagedType.Bool)] internal static extern bool CloseHandle(nint handle);
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)] [return: MarshalAs(UnmanagedType.Bool)]
+    internal static extern bool QueryFullProcessImageName(nint process, uint flags, System.Text.StringBuilder name, ref uint length);
+    [DllImport("kernel32.dll", SetLastError = true)] [return: MarshalAs(UnmanagedType.Bool)]
+    internal static extern bool GetProcessTimes(nint process, out FileTime created, out FileTime exited,
+        out FileTime kernel, out FileTime user);
 }

@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Runtime.Versioning;
 using GameSidebar.Application.Abstractions;
 using GameSidebar.Core.Geometry;
@@ -66,7 +65,9 @@ public sealed class WindowsWindowGeometryProvider : IWindowGeometryProvider
                 $"0x{monitorHandle.ToInt64():X}", dpi, target, caller,
                 valid ? GeometryValidity.Valid : GeometryValidity.Inconsistent, DateTimeOffset.UtcNow);
             return new(after, geometry, foreground, false,
-                valid ? null : new(WindowErrorCode.ApiFailure, "采样到矛盾或无效的窗口几何"));
+                !valid ? new(WindowErrorCode.ApiFailure, "采样到矛盾或无效的窗口几何") :
+                after.Verification == IdentityVerification.Insufficient ?
+                    new(WindowErrorCode.IdentityInsufficient, "进程创建时间暂不可读") : null);
         }
         return Failure(requested, false, false, "Geometry retry");
     }
@@ -76,10 +77,9 @@ public sealed class WindowsWindowGeometryProvider : IWindowGeometryProvider
         if (!NativeMethods.IsWindow(hwnd)) return requested with { Verification = IdentityVerification.Destroyed };
         NativeMethods.GetWindowThreadProcessId(hwnd, out var pid);
         if (pid != requested.ProcessId) return requested with { Verification = IdentityVerification.Mismatch };
-        DateTimeOffset? started = null;
-        try { using var process = Process.GetProcessById(checked((int)pid)); started = new DateTimeOffset(process.StartTime); }
-        catch (Exception e) when (e is ArgumentException or InvalidOperationException or System.ComponentModel.Win32Exception)
-        { return requested with { Verification = IdentityVerification.Insufficient }; }
+        var process = WindowsProcessInfo.Read(pid);
+        if (process.StartedAt is null) return requested with { Verification = IdentityVerification.Insufficient };
+        var started = process.StartedAt;
         if (requested.ProcessStartedAt is not null && started != requested.ProcessStartedAt)
             return requested with { Verification = IdentityVerification.Mismatch };
         return requested with { ProcessStartedAt = started,

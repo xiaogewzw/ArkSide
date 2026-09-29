@@ -10,7 +10,7 @@
 | Mac Core / Application 测试 | 通过 | 4 + 11 项；含负坐标、Profile 歧义、迟到结果、解绑与非重入轮询 |
 | Windows 平台测试 | 待执行 | Mac 上 1 项显式 skipped；需 Windows 运行 |
 | Mac Demo 主窗口启动 | 通过（界面操作待核对） | 本机日志出现 `Main window opened in Demo mode` 与 `Starting -> NotConfigured`；未完成界面逐项操作 |
-| 本机交叉发布 | 通过 | `artifacts/GameSidebar-win-x64.zip`（SHA256 `e9891d78777b0732993fb217d4d01c9d57ed27b572583723da1f4f0b15bfc08e`）与独立的 `TestWindow-win-x64.zip`（SHA256 `69dd66341e563b0fcc89e41e8af0e094bc3f10f44cf5dae0deaa9a60c9a52498`）；核对 exe 与内置 Profile |
+| 本机交叉发布 | 通过 | `artifacts/GameSidebar-win-x64.zip`（SHA256 `e0a7621824560aea95da153d2872477933e59dbf0498a6dc3547439b3c5181ce`）与独立的 `TestWindow-win-x64.zip`（SHA256 `7109ca16a4f629c207646e3dcf5741c968e2b6c706fe740a1b9a638c4510224e`）；核对 exe 与内置 Profile |
 | GitHub Actions | 未运行 | 无远端仓库 |
 | Windows 无 SDK 解压启动 | 待执行 | 需 Windows 干净环境 |
 | Windows 10 22H2 | 待执行 | 兼容目标保留 |
