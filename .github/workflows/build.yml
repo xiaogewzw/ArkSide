@@ -1,0 +1,69 @@
+name: Build and test
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  mac:
+    runs-on: macos-15
+    env:
+      ContinuousIntegrationBuild: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet restore GameSidebar.sln --locked-mode
+      - run: dotnet build GameSidebar.sln -c Release --no-restore
+      - run: dotnet test GameSidebar.sln -c Release --no-build --no-restore --logger "trx;LogFilePrefix=mac" --results-directory artifacts/test-results
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mac-test-results
+          path: artifacts/test-results/*.trx
+
+  windows:
+    runs-on: windows-2025
+    env:
+      ContinuousIntegrationBuild: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          global-json-file: global.json
+      - run: dotnet restore GameSidebar.sln --locked-mode
+      - run: dotnet build GameSidebar.sln -c Release --no-restore
+      - run: dotnet test GameSidebar.sln -c Release --no-build --no-restore --logger "trx;LogFilePrefix=windows" --results-directory artifacts/test-results
+      - name: Select locked win-x64 restore graphs
+        shell: pwsh
+        run: |
+          foreach ($name in @('Core','Application','Platform.Windows','App')) {
+            Copy-Item "src/GameSidebar.$name/packages.win-x64.lock.json" "src/GameSidebar.$name/packages.lock.json" -Force
+          }
+          Copy-Item "tools/GameSidebar.TestWindow/packages.win-x64.lock.json" "tools/GameSidebar.TestWindow/packages.lock.json" -Force
+      - run: dotnet restore src/GameSidebar.App/GameSidebar.App.csproj -r win-x64 --locked-mode
+      - run: dotnet publish src/GameSidebar.App/GameSidebar.App.csproj -c Release -r win-x64 --self-contained true --no-restore -o artifacts/GameSidebar-win-x64
+      - run: dotnet restore tools/GameSidebar.TestWindow/GameSidebar.TestWindow.csproj -r win-x64 --locked-mode
+      - run: dotnet publish tools/GameSidebar.TestWindow/GameSidebar.TestWindow.csproj -c Release -r win-x64 --self-contained true --no-restore -o artifacts/TestWindow-win-x64
+      - name: Check ZIP contents and package separately
+        shell: pwsh
+        run: |
+          if (!(Test-Path artifacts/GameSidebar-win-x64/GameSidebar.App.exe)) { throw 'App exe missing' }
+          if (!(Test-Path artifacts/GameSidebar-win-x64/profiles/diagnostic-1920x1080.json)) { throw 'Diagnostic profile missing' }
+          if (!(Test-Path artifacts/TestWindow-win-x64/GameSidebar.TestWindow.exe)) { throw 'TestWindow exe missing' }
+          Compress-Archive -Path artifacts/GameSidebar-win-x64/* -DestinationPath artifacts/GameSidebar-win-x64.zip -Force
+          Compress-Archive -Path artifacts/TestWindow-win-x64/* -DestinationPath artifacts/TestWindow-win-x64.zip -Force
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: windows-test-results
+          path: artifacts/test-results/*.trx
+      - uses: actions/upload-artifact@v4
+        with:
+          name: GameSidebar-win-x64
+          path: artifacts/GameSidebar-win-x64.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TestWindow-win-x64
+          path: artifacts/TestWindow-win-x64.zip

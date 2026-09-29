@@ -1,0 +1,13 @@
+{
+  "schemaVersion": 1,
+  "target": {
+    "schemaVersion": 1,
+    "gameId": null,
+    "displayName": null,
+    "exe": null,
+    "titleRule": null,
+    "classRule": null,
+    "preferredProfileId": "diagnostic-1920x1080"
+  },
+  "showExcludedWindows": true
+}

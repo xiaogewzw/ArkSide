@@ -1,0 +1,10 @@
+{
+  "schemaVersion": 1,
+  "id": "diagnostic-1920x1080",
+  "purpose": "DiagnosticOnly",
+  "gameId": null,
+  "clientSize": { "width": 1920, "height": 1080 },
+  "sidebar": { "expandedWidthDip": 360, "collapsedWidthDip": 48 },
+  "coordinates": {},
+  "regions": {}
+}
