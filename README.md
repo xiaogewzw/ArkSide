@@ -2,6 +2,12 @@
 
 这是 Windows x64 窗口绑定与几何诊断程序。当前交付不包含侧边栏、截图、识别或输入自动化。`Ready` 只表示身份、Client 几何和 Profile 尺寸可用；目标游戏兼容性仍为 `Unknown`。
 
+## 当前进度与下一轮计划
+
+2026-09-30：Phase 0–1 开发完成，验收部分通过。无需补完旧重型矩阵即可继续；下一轮为 B2 双平台侧边栏与真实截图，覆盖多个旧 Phase，并新增 macOS 真实游戏绑定/截图。
+
+B2 将支持 Windows 程序同目录 `target-game.json` 填完整 exe 路径，以及 Mac 选择 `.app`/运行窗口回填 Bundle ID。该新配置格式仍待实现；当前程序只读取下文的 settings.json/旧 exe 文件名，现有运行命令保持不变。
+
 ## 开发与运行
 
 - SDK：.NET 10.0.401（`global.json` 固定）。
@@ -15,7 +21,7 @@
 
 设置写入用户应用数据目录下的 `GameSidebar/settings.json`：Windows 为 `%LocalAppData%/GameSidebar`，Mac 为系统返回的 LocalApplicationData 目录。损坏 JSON 会备份成 `.corrupt-时间`，界面提示并使用默认值。仅持久化目标规则、Profile 偏好与诊断设置，不保存 PID、HWND 或会话快照。
 
-目标规则字段：`schemaVersion=1`、`gameId`、`displayName`、`exe`、`titleRule`、`classRule`、`preferredProfileId`。`exe` 为文件名，大小写不敏感；标题与类名为可选正则，有 100ms 匹配超时。内置 `profiles/diagnostic-1920x1080.json` 只按 Client 物理像素尺寸诊断，`purpose=DiagnosticOnly`，不代表游戏布局验证。另见 [目标配置模板](docs/testing/target-settings-template.json)。
+目标规则字段：`schemaVersion=1`、`gameId`、`displayName`、`exe`、`titleRule`、`classRule`、`preferredProfileId`。`exe` 为文件名，大小写不敏感；标题与类名为可选正则，有 100ms 匹配超时。内置 `profiles/diagnostic-1920x1080.json` 只按 Client 物理像素尺寸诊断，`purpose=DiagnosticOnly`，不代表游戏布局验证。
 
 日志在应用数据目录的 `logs/game-sidebar.log`，最多约 3×2 MB。状态转换及错误关联 SessionId/BindingGeneration，普通轮询不写完整几何。诊断 JSON 可从界面复制，不用它恢复下次绑定。
 
@@ -29,7 +35,7 @@ dotnet build GameSidebar.sln -c Release --no-restore
 dotnet test GameSidebar.sln -c Release --no-build --no-restore
 ```
 
-`.github/workflows/build.yml` 使用 `macos-15` 与 `windows-2025`，固定 SDK，上传测试结果和独立 ZIP。[GitHub Releases](https://github.com/xiaogewzw/ArkSide/releases) 提供可下载的 Windows 验收候选 ZIP；源码 ZIP 不能直接运行。本机 Mac 可交叉生成 self-contained win-x64 ZIP，但它不能替代 Windows 桌面启动与 DPI 验收。详见 [验收记录](docs/testing/phase1-acceptance.md)和 [Windows 逐项验收清单](docs/testing/windows-phase1-checklist.md)。
+`.github/workflows/build.yml` 使用 `macos-15` 与 `windows-2025`，固定 SDK，上传测试结果和独立 ZIP。[GitHub Releases](https://github.com/xiaogewzw/ArkSide/releases) 提供可下载的 Windows 验收候选 ZIP；源码 ZIP 不能直接运行。本机 Mac 可交叉生成 self-contained win-x64 ZIP，但它不能替代 Windows 桌面启动与 DPI 验收。
 
 ## 依赖基线（2026-09-29）
 
