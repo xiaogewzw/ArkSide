@@ -3,7 +3,7 @@ set -euo pipefail
 cd "${0:A:h}/.."
 app_path="${1:-artifacts/GameSidebar-Dev.app}"
 mkdir -p "$app_path/Contents/MacOS"
-dotnet restore src/GameSidebar.App/GameSidebar.App.csproj -p:RuntimeIdentifier=osx-arm64 --locked-mode
+dotnet restore src/GameSidebar.App/GameSidebar.App.csproj -p:RuntimeIdentifier=osx-arm64 -p:SelfContained=true --locked-mode
 dotnet publish src/GameSidebar.App/GameSidebar.App.csproj -c Release -r osx-arm64 --self-contained true --no-restore -o "$app_path/Contents/MacOS"
 cat > "$app_path/Contents/Info.plist" <<'PLIST'
 <?xml version="1.0" encoding="UTF-8"?>

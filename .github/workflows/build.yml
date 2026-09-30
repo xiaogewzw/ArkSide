@@ -50,9 +50,9 @@ jobs:
       - run: dotnet restore GameSidebar.sln --locked-mode
       - run: dotnet build GameSidebar.sln -c Release --no-restore
       - run: dotnet test GameSidebar.sln -c Release --no-build --no-restore --logger "trx;LogFilePrefix=windows" --results-directory artifacts/test-results
-      - run: dotnet restore src/GameSidebar.App/GameSidebar.App.csproj -p:RuntimeIdentifier=win-x64 --locked-mode
+      - run: dotnet restore src/GameSidebar.App/GameSidebar.App.csproj -p:RuntimeIdentifier=win-x64 -p:SelfContained=true --locked-mode
       - run: dotnet publish src/GameSidebar.App/GameSidebar.App.csproj -c Release -r win-x64 --self-contained true --no-restore -o artifacts/GameSidebar-win-x64
-      - run: dotnet restore tools/GameSidebar.TestWindow/GameSidebar.TestWindow.csproj -p:RuntimeIdentifier=win-x64 --locked-mode
+      - run: dotnet restore tools/GameSidebar.TestWindow/GameSidebar.TestWindow.csproj -p:RuntimeIdentifier=win-x64 -p:SelfContained=true --locked-mode
       - run: dotnet publish tools/GameSidebar.TestWindow/GameSidebar.TestWindow.csproj -c Release -r win-x64 --self-contained true --no-restore -o artifacts/TestWindow-win-x64
       - name: Check ZIP contents and package separately
         shell: pwsh
