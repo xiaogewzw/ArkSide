@@ -40,6 +40,7 @@ internal static class WindowNative
         var process = WindowsProcessInfo.Read(pid);
         return new(id, checked((int)pid), process.Executable, title.ToString(), className.ToString(), process.StartedAt,
             NativeMethods.IsWindowVisible(hwnd), NativeMethods.IsIconic(hwnd), (style & 0x80) != 0,
-            cloaked, NativeMethods.GetWindow(hwnd, 4) != 0, pid == Environment.ProcessId, process.Error);
+            cloaked, NativeMethods.GetWindow(hwnd, 4) != 0, pid == Environment.ProcessId, process.Error,
+            ExecutablePath: process.ExecutablePath);
     }
 }

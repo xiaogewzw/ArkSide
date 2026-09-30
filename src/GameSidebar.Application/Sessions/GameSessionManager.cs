@@ -60,11 +60,20 @@ public sealed class GameSessionManager : IAsyncDisposable
         {
             _rule = rule;
             var error = ProfileRules.Validate(rule);
-            var next = Current with { Error = error, AutoDiscoveryEnabled = false, ObservedAt = _time.GetUtcNow() };
-            if (error is not null) Publish(next with { State = GameSessionState.Faulted });
-            else if (next.Identity is not null) Revalidate(next);
-            else Publish(next with { State = GameSessionState.NotConfigured });
+            _bindingCancellation?.Cancel();
+            var next = Current with { SessionId = null, BindingGeneration = Current.BindingGeneration + 1,
+                GeometryVersion = 0, Identity = null, Geometry = null, ProfileValidation = null,
+                BindingMode = BindingMode.None, SelectionKind = SelectionKind.None,
+                Error = error, AutoDiscoveryEnabled = false, ObservedAt = _time.GetUtcNow() };
+            Publish(next with { State = error is not null ? GameSessionState.Faulted : GameSessionState.NotConfigured });
         }
+        finally { _gate.Release(); }
+    }
+
+    public async Task ReportConfigErrorAsync(WindowOperationError error, CancellationToken cancellationToken = default)
+    {
+        await _gate.WaitAsync(cancellationToken);
+        try { Publish(Current with { State = GameSessionState.Faulted, AutoDiscoveryEnabled = false, Error = error }); }
         finally { _gate.Release(); }
     }
 
@@ -300,7 +309,10 @@ public sealed class GameSessionManager : IAsyncDisposable
         }
         var profile = ProfileRules.Match(_loadedProfiles, source.Geometry, _rule.PreferredProfileId);
         var state = source.Identity.Verification != IdentityVerification.Verified || source.IsMinimized ||
-            source.Geometry?.IsUsable != true || source.Error is not null ? GameSessionState.BoundUnavailable :
+            source.Geometry is null || source.Error is not null ? GameSessionState.BoundUnavailable :
+            source.Geometry.Placement?.Space == DesktopCoordinateSpace.MacDesktopPoints &&
+            source.Geometry.Placement.Frame.IsValid ? GameSessionState.PreviewOnly :
+            source.Geometry.IsUsable != true ? GameSessionState.BoundUnavailable :
             profile.Kind switch
             {
                 ProfileValidationKind.Matched => GameSessionState.Ready,

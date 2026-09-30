@@ -14,9 +14,11 @@ public sealed record GameWindowProfile(
 public sealed record TargetWindowRule(
     int SchemaVersion = 1, string? GameId = null, string? DisplayName = null,
     string? Exe = null, string? TitleRule = null, string? ClassRule = null,
-    string? PreferredProfileId = "diagnostic-1920x1080")
+    string? PreferredProfileId = "diagnostic-1920x1080",
+    string? ExecutablePath = null, string? BundleId = null, string? AppBundlePath = null)
 {
-    public bool IsConfigured => !string.IsNullOrWhiteSpace(Exe);
+    public bool IsConfigured => !string.IsNullOrWhiteSpace(ExecutablePath) ||
+        !string.IsNullOrWhiteSpace(BundleId) || !string.IsNullOrWhiteSpace(Exe);
 }
 public enum ProfileValidationKind { Matched, UnsupportedResolution, GeometryUnavailable, AmbiguousProfile, InvalidProfile }
 public sealed record ProfileValidationResult(ProfileValidationKind Kind, string Reason, string? ProfileId = null);
@@ -27,7 +29,10 @@ public static class ProfileRules
     {
         if (rule.SchemaVersion != 1) return new(WindowErrorCode.InvalidConfiguration, "目标规则 schemaVersion 不受支持");
         if (!rule.IsConfigured && (!string.IsNullOrWhiteSpace(rule.TitleRule) || !string.IsNullOrWhiteSpace(rule.ClassRule)))
-            return new(WindowErrorCode.InvalidConfiguration, "自动规则需要 exe");
+            return new(WindowErrorCode.InvalidConfiguration, "自动规则需要目标应用");
+        if (rule.ExecutablePath is not null && (!Path.IsPathFullyQualified(rule.ExecutablePath) ||
+            !Path.IsPathRooted(rule.ExecutablePath) || !File.Exists(rule.ExecutablePath)))
+            return new(WindowErrorCode.InvalidConfiguration, $"目标 exe 完整路径无效或文件不存在：{rule.ExecutablePath}");
         foreach (var value in new[] { rule.TitleRule, rule.ClassRule })
         {
             if (string.IsNullOrWhiteSpace(value)) continue;

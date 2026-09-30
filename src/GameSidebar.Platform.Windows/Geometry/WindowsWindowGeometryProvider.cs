@@ -63,7 +63,12 @@ public sealed class WindowsWindowGeometryProvider : IWindowGeometryProvider
             var geometry = new WindowGeometrySnapshot(windowRect, frame, source, size, clientOrigin,
                 clientBounds, WindowNative.Rect(monitor.Monitor), WindowNative.Rect(monitor.Work),
                 $"0x{monitorHandle.ToInt64():X}", dpi, target, caller,
-                valid ? GeometryValidity.Valid : GeometryValidity.Inconsistent, DateTimeOffset.UtcNow);
+                valid ? GeometryValidity.Valid : GeometryValidity.Inconsistent, DateTimeOffset.UtcNow,
+                new WindowPlacement(DesktopCoordinateSpace.WindowsPhysicalPixels,
+                    new(frame.Left, frame.Top, frame.Width, frame.Height),
+                    new(monitor.Work.Left, monitor.Work.Top,
+                        monitor.Work.Right - monitor.Work.Left, monitor.Work.Bottom - monitor.Work.Top),
+                    $"0x{monitorHandle.ToInt64():X}", null, true));
             return new(after, geometry, foreground, false,
                 !valid ? new(WindowErrorCode.ApiFailure, "采样到矛盾或无效的窗口几何") :
                 after.Verification == IdentityVerification.Insufficient ?

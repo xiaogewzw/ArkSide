@@ -25,14 +25,22 @@ jobs:
         run: |
           set -euo pipefail
           [[ "$SOURCE_RUN_ID" =~ ^[0-9]+$ ]]
-          conclusion="$(gh run view "$SOURCE_RUN_ID" --json conclusion --jq '.conclusion')"
-          test "$conclusion" = success
+          gh api "repos/$GH_REPO/actions/runs/$SOURCE_RUN_ID" > source-run.json
+          jq -e '.conclusion == "success" and .path == ".github/workflows/build.yml"' source-run.json
+          gh run view "$SOURCE_RUN_ID" --json jobs --jq '.jobs' > source-jobs.json
+          jq -e 'any(.[]; .name == "windows" and .conclusion == "success")' source-jobs.json
           source_sha="$(gh run view "$SOURCE_RUN_ID" --json headSha --jq '.headSha')"
+          [[ "$source_sha" =~ ^[0-9a-f]{40}$ ]]
           echo "SOURCE_SHA=$source_sha" >> "$GITHUB_ENV"
           gh run download "$SOURCE_RUN_ID" -n GameSidebar-win-x64 -D release/app
           gh run download "$SOURCE_RUN_ID" -n TestWindow-win-x64 -D release/test-window
           test -f release/app/GameSidebar-win-x64.zip
           test -f release/test-window/TestWindow-win-x64.zip
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ env.SOURCE_SHA }}
+          path: source
 
       - name: Validate package contents and record hashes
         shell: bash
@@ -42,9 +50,16 @@ jobs:
           unzip -tq release/test-window/TestWindow-win-x64.zip
           unzip -Z1 release/app/GameSidebar-win-x64.zip | grep -Fx 'GameSidebar.App.exe'
           unzip -Z1 release/app/GameSidebar-win-x64.zip | grep -Fx 'profiles/diagnostic-1920x1080.json'
+          unzip -Z1 release/app/GameSidebar-win-x64.zip | grep -Fx 'target-game.example.json'
+          unzip -Z1 release/app/GameSidebar-win-x64.zip | grep -Fx 'runtimes/win-x64/native/MaaFramework.dll'
+          unzip -Z1 release/app/GameSidebar-win-x64.zip | grep -Fx 'runtimes/win-x64/native/MaaWin32ControlUnit.dll'
+          unzip -Z1 release/app/GameSidebar-win-x64.zip | grep -Fx 'Windows-B2-checklist.md'
           unzip -Z1 release/test-window/TestWindow-win-x64.zip | grep -Fx 'GameSidebar.TestWindow.exe'
+          cp source/Windows-B2-测试清单.md release/Windows-B2-checklist.md
+          unzip -p release/app/GameSidebar-win-x64.zip Windows-B2-checklist.md | cmp - release/Windows-B2-checklist.md
           (cd release/app && sha256sum GameSidebar-win-x64.zip) > release/SHA256SUMS.txt
           (cd release/test-window && sha256sum TestWindow-win-x64.zip) >> release/SHA256SUMS.txt
+          (cd release && sha256sum Windows-B2-checklist.md) >> release/SHA256SUMS.txt
           cat release/SHA256SUMS.txt
 
       - name: Publish prerelease
@@ -52,17 +67,20 @@ jobs:
         run: |
           set -euo pipefail
           cat > release/NOTES.md <<EOF
-          Windows x64 Phase 1 acceptance candidate from successful [Mac/Windows CI run](https://github.com/$GH_REPO/actions/runs/$SOURCE_RUN_ID), source commit \`$SOURCE_SHA\`.
+          Windows x64 B2 双平台侧边栏与截图测试版。来自成功的 [Mac/Windows CI run](https://github.com/$GH_REPO/actions/runs/$SOURCE_RUN_ID)，源码提交 \`$SOURCE_SHA\`。两个 Windows ZIP 均由 Windows runner 编译、自包含发布。
 
-          Download both ZIPs below, verify them with SHA256SUMS.txt, then follow the [Windows acceptance checklist](https://github.com/$GH_REPO/blob/$SOURCE_SHA/docs/testing/windows-phase1-checklist.md).
+          下载 GameSidebar-win-x64.zip、TestWindow-win-x64.zip，用 SHA256SUMS.txt 校验，按 [Windows B2 轻量测试清单](https://github.com/$GH_REPO/blob/$SOURCE_SHA/Windows-B2-测试清单.md) 测试。清单也在主程序 ZIP 内及本页附件 Windows-B2-checklist.md 中。不要下载 Source code ZIP 来运行。
 
-          These are self-contained builds. Windows interactive desktop, DPI, clean-machine startup, and long-running checks remain for manual acceptance. The target game is not yet configured or validated.
+          本轮重点：明日方舟实际窗口的完整路径匹配、同名错误目标防误绑、侧边栏、单帧 PNG、约两分钟预览、停止/最小化/关闭/重绑/采集中退出。无默认个人 target-game.json；游戏需先由用户启动，模拟器场景填写实际承载游戏窗口的 exe 路径。
+
+          Windows 真机截图与预览仍待本次测试；CI 编译/自动测试成功不代表运行时截图成功。此前 Phase 1 Windows 报告为 13 通过、11 未执行，不能宣称完整验收通过。干净机器、多屏/混合 DPI 和长期资源测试保留后续补验，不要求本轮重跑重型测试。
           EOF
-          gh release create phase1-windows-acceptance-2026-09-29 \
+          gh release create b2-windows-acceptance-2026-09-30 \
             release/app/GameSidebar-win-x64.zip \
             release/test-window/TestWindow-win-x64.zip \
             release/SHA256SUMS.txt \
+            release/Windows-B2-checklist.md \
             --target "$SOURCE_SHA" \
-            --title 'Phase 1 Windows acceptance candidate (2026-09-29)' \
+            --title 'B2 Windows sidebar and capture acceptance (2026-09-30)' \
             --prerelease \
             --notes-file release/NOTES.md

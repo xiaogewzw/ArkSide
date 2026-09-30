@@ -44,6 +44,29 @@ public sealed class DiscoveryTests
     }
 
     [Fact]
+    public void Complete_path_never_matches_a_same_named_executable_elsewhere()
+    {
+        var directory = Path.Combine(Path.GetTempPath(), "GameSidebarTests", Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+        var wanted = Path.Combine(directory, "game.exe");
+        File.WriteAllText(wanted, "fixture");
+        try
+        {
+            var sameName = Candidate("other") with { Executable = "game.exe",
+                ExecutablePath = Path.Combine(directory, "other", "game.exe") };
+            var correct = Candidate("correct") with { Executable = "game.exe", ExecutablePath = wanted };
+            var result = WindowMatchService.Match(new(ExecutablePath: wanted), [sameName, correct]);
+            Assert.Equal([correct.Id], result.Candidates.Select(x => x.Id));
+            var unreadable = Candidate("unknown") with { Executable = "game.exe", ExecutablePath = null };
+            Assert.Equal(WindowErrorCode.PermissionDenied,
+                WindowMatchService.Match(new(ExecutablePath: wanted), [unreadable]).Error?.Code);
+            Assert.Equal(WindowErrorCode.InvalidConfiguration,
+                WindowMatchService.Match(new(ExecutablePath: Path.Combine(directory, "missing.exe")), [sameName]).Error?.Code);
+        }
+        finally { Directory.Delete(directory, true); }
+    }
+
+    [Fact]
     public void Regex_timeout_is_a_distinct_configuration_failure()
     {
         var candidate = Candidate("slow") with { Title = new string('a', 30_000) + "!" };

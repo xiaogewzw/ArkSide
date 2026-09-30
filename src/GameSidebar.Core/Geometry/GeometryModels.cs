@@ -15,6 +15,14 @@ public readonly record struct ScreenPixelRect(int Left, int Top, int Right, int 
 public enum GeometryValidity { Valid, Minimized, Unavailable, Inconsistent, Stale }
 public enum VisibleFrameSource { Dwm, WindowBoundsFallback }
 public enum DpiAwarenessKind { Unknown, Unaware, SystemAware, PerMonitorAware, PerMonitorAwareV2 }
+public enum DesktopCoordinateSpace { WindowsPhysicalPixels, MacDesktopPoints }
+public sealed record DesktopRect(double X, double Y, double Width, double Height)
+{
+    public bool IsValid => Width > 0 && Height > 0 && double.IsFinite(X) && double.IsFinite(Y);
+}
+public sealed record WindowPlacement(DesktopCoordinateSpace Space, DesktopRect Frame,
+    DesktopRect? WorkArea, string? DisplayId, double? PixelsPerPoint,
+    bool ClientMappingKnown);
 
 public sealed record WindowGeometrySnapshot(
     ScreenPixelRect WindowBoundsPx,
@@ -30,7 +38,8 @@ public sealed record WindowGeometrySnapshot(
     DpiAwarenessKind TargetAwareness,
     DpiAwarenessKind CallerAwareness,
     GeometryValidity Validity,
-    DateTimeOffset ObservedAt)
+    DateTimeOffset ObservedAt,
+    WindowPlacement? Placement = null)
 {
     public bool IsUsable => Validity == GeometryValidity.Valid && ClientSizePx.IsValid;
     public bool SameMapping(WindowGeometrySnapshot other) =>
@@ -38,5 +47,6 @@ public sealed record WindowGeometrySnapshot(
         ClientSizePx == other.ClientSizePx && ClientOriginScreenPx == other.ClientOriginScreenPx &&
         MonitorBoundsPx == other.MonitorBoundsPx && WorkAreaPx == other.WorkAreaPx &&
         MonitorId == other.MonitorId && TargetWindowDpi == other.TargetWindowDpi &&
-        TargetAwareness == other.TargetAwareness && CallerAwareness == other.CallerAwareness;
+        TargetAwareness == other.TargetAwareness && CallerAwareness == other.CallerAwareness &&
+        Placement == other.Placement;
 }

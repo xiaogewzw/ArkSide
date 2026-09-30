@@ -1,0 +1,17 @@
+{
+  "schemaVersion": 1,
+  "gameId": null,
+  "displayName": null,
+  "windows": {
+    "executablePath": null,
+    "titleRule": null,
+    "classRule": null,
+    "preferredProfileId": null
+  },
+  "macOS": {
+    "appBundlePath": null,
+    "bundleId": null,
+    "titleRule": null,
+    "preferredProfileId": null
+  }
+}

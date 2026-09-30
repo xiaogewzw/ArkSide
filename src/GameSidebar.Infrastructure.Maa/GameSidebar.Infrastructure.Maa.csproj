@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="../GameSidebar.Application/GameSidebar.Application.csproj" />
+    <ProjectReference Include="../GameSidebar.Platform.MacOS/GameSidebar.Platform.MacOS.csproj" />
+    <PackageReference Include="Maa.Framework.Native" />
+    <PackageReference Include="Maa.Framework.Runtime.osx-arm64" />
+    <PackageReference Include="Maa.Framework.Runtime.win-x64" />
+  </ItemGroup>
+</Project>

@@ -45,6 +45,38 @@ public sealed class StorageTests
         }
         finally { Directory.Delete(directory, recursive: true); }
     }
+    [Fact] public async Task Target_file_takes_priority_and_empty_platform_does_not_fall_back()
+    {
+        var directory = TemporaryDirectory();
+        try
+        {
+            var legacy = new TargetWindowRule(Exe: "legacy.exe");
+            var store = new TargetConfigStore([], directory, mac: false);
+            Assert.Equal("legacy.exe", (await store.LoadAsync(legacy)).Rule.Exe);
+            await File.WriteAllTextAsync(store.DefaultPath, "{\"schemaVersion\":1,\"windows\":{\"executablePath\":null}}");
+            var empty = await store.LoadAsync(legacy);
+            Assert.Null(empty.Rule.Exe);
+            Assert.False(empty.Rule.IsConfigured);
+            await File.WriteAllTextAsync(store.DefaultPath, "{bad");
+            var corrupt = await store.LoadAsync(legacy);
+            Assert.Equal(WindowErrorCode.InvalidConfiguration, corrupt.Error?.Code);
+            Assert.Null(corrupt.Rule.Exe);
+        }
+        finally { Directory.Delete(directory, true); }
+    }
+    [Fact] public async Task Explicit_missing_target_does_not_use_legacy_settings()
+    {
+        var directory = TemporaryDirectory();
+        try
+        {
+            var path = Path.Combine(directory, "missing.json");
+            var store = new TargetConfigStore(["--target-config", path], directory, mac: false);
+            var result = await store.LoadAsync(new(Exe: "legacy.exe"));
+            Assert.Equal(WindowErrorCode.InvalidConfiguration, result.Error?.Code);
+            Assert.Null(result.Rule.Exe);
+        }
+        finally { Directory.Delete(directory, true); }
+    }
     private static string TemporaryDirectory()
     {
         var path = Path.Combine(Path.GetTempPath(), "GameSidebarTests", Guid.NewGuid().ToString("N"));

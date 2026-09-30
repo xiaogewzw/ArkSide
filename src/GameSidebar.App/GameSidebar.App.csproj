@@ -9,6 +9,8 @@
   <ItemGroup>
     <ProjectReference Include="../GameSidebar.Application/GameSidebar.Application.csproj" />
     <ProjectReference Include="../GameSidebar.Platform.Windows/GameSidebar.Platform.Windows.csproj" />
+    <ProjectReference Include="../GameSidebar.Platform.MacOS/GameSidebar.Platform.MacOS.csproj" />
+    <ProjectReference Include="../GameSidebar.Infrastructure.Maa/GameSidebar.Infrastructure.Maa.csproj" />
     <PackageReference Include="Avalonia" />
     <PackageReference Include="Avalonia.Desktop" />
     <PackageReference Include="Avalonia.Themes.Fluent" />
@@ -16,5 +18,12 @@
     <PackageReference Include="Microsoft.Extensions.Hosting" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" />
     <Content Include="../../assets/profiles/*.json" Link="profiles/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../../assets/target-game.example.json" Link="target-game.example.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
+  <Target Name="BuildMacBridge" AfterTargets="Build" Condition="$([MSBuild]::IsOSPlatform('OSX')) and ('$(RuntimeIdentifier)' == '' or '$(RuntimeIdentifier)' == 'osx-arm64')">
+    <Exec Command="swiftc -O -parse-as-library -emit-library -o &quot;$(TargetDir)libGameSidebarMac.dylib&quot; &quot;$(MSBuildProjectDirectory)/../GameSidebar.Platform.MacOS/Native/GameSidebarMac.swift&quot; -framework AppKit -framework ScreenCaptureKit" />
+  </Target>
+  <Target Name="PublishMacBridge" AfterTargets="Publish" Condition="$([MSBuild]::IsOSPlatform('OSX')) and '$(RuntimeIdentifier)' == 'osx-arm64'">
+    <Exec Command="swiftc -O -parse-as-library -emit-library -o &quot;$(PublishDir)libGameSidebarMac.dylib&quot; &quot;$(MSBuildProjectDirectory)/../GameSidebar.Platform.MacOS/Native/GameSidebarMac.swift&quot; -framework AppKit -framework ScreenCaptureKit" />
+  </Target>
 </Project>

@@ -199,6 +199,24 @@
         "resolved": "8.3.1.3",
         "contentHash": "bx8CE8Js+XGX8PUxAHCBDEORt5aaBYtMN4Hr9QFs57Xithh6yjUyYqksizH6eRDhJkwsGI+SXWmPmMm8lZC9Pw=="
       },
+      "Maa.AgentBinary": {
+        "type": "Transitive",
+        "resolved": "1.2.0",
+        "contentHash": "Gdl2wIX/1TmwII9PZQzh5He6/k/zjY0MjY6tDH9ovzCnTSKYNvFVVvPWqVgjQ7hRWZYF4nX9lPqAJyGZfI47TA=="
+      },
+      "Maa.Framework.Binding": {
+        "type": "Transitive",
+        "resolved": "5.10.0",
+        "contentHash": "wJaYtH6ujslj6gL1W3RQRpkrbEwDexbUU+rSUk2Cr5mJ57R6M+db90oVgBZobAb7EvCCMNiZe3ec5dtDoCV73g=="
+      },
+      "Maa.Framework.Binding.Native": {
+        "type": "Transitive",
+        "resolved": "5.10.0",
+        "contentHash": "uCFZ1Vk/HffwKVU5uJACztbeobKegfOQTJmEip1fDPlW+4zXtGUCNee5j/e2G2+SVNZv4GOldruXBwuq0Tqd0g==",
+        "dependencies": {
+          "Maa.Framework.Binding": "5.10.0"
+        }
+      },
       "MicroCom.Runtime": {
         "type": "Transitive",
         "resolved": "0.11.6",
@@ -491,11 +509,49 @@
       "gamesidebar.core": {
         "type": "Project"
       },
+      "gamesidebar.infrastructure.maa": {
+        "type": "Project",
+        "dependencies": {
+          "GameSidebar.Application": "[1.0.0, )",
+          "GameSidebar.Platform.MacOS": "[1.0.0, )",
+          "Maa.Framework.Native": "[5.10.0, )",
+          "Maa.Framework.Runtime.osx-arm64": "[5.10.5, )",
+          "Maa.Framework.Runtime.win-x64": "[5.10.5, )"
+        }
+      },
+      "gamesidebar.platform.macos": {
+        "type": "Project",
+        "dependencies": {
+          "GameSidebar.Application": "[1.0.0, )"
+        }
+      },
       "gamesidebar.platform.windows": {
         "type": "Project",
         "dependencies": {
           "GameSidebar.Application": "[1.0.0, )"
         }
+      },
+      "Maa.Framework.Native": {
+        "type": "CentralTransitive",
+        "requested": "[5.10.0, )",
+        "resolved": "5.10.0",
+        "contentHash": "MLweldEj0VY50xhUG457wTa8RNAfnYzgQu6cIeLE0IFdKrxFD3aoreLgjvpwvTnfU0BndWgB0+hjGKTP2Dgx2A==",
+        "dependencies": {
+          "Maa.AgentBinary": "1.2.0",
+          "Maa.Framework.Binding.Native": "5.10.0"
+        }
+      },
+      "Maa.Framework.Runtime.osx-arm64": {
+        "type": "CentralTransitive",
+        "requested": "[5.10.5, )",
+        "resolved": "5.10.5",
+        "contentHash": "/VRz97qM2eJqaUDFEsRdxzUGZGzXpi6c8awcf0qmM8/1wOqNzgLsK3aOH0fv9eD1UWJf5/1anfgq58Jf4jNH/Q=="
+      },
+      "Maa.Framework.Runtime.win-x64": {
+        "type": "CentralTransitive",
+        "requested": "[5.10.5, )",
+        "resolved": "5.10.5",
+        "contentHash": "3B+m77FjnDq4u8LGA+tI8EokZLv1aVlIhzXRon7xsPlM59Ak5Vy84LlGmM14ajvaLeTKGYWSxC/yXuYnaHQoQg=="
       }
     },
     "net10.0/win-x64": {
