@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using GameSidebar.Application.Capture;
 using GameSidebar.Application.Sessions;
+using GameSidebar.Application.Recognition;
 using GameSidebar.Core.Sessions;
 using GameSidebar.Platform.MacOS;
 using System.Runtime.InteropServices;
@@ -14,6 +15,7 @@ public sealed class SidebarViewModel : ObservableObject, IDisposable
 {
     private readonly CaptureCoordinator _capture;
     private readonly GameSessionManager _sessions;
+    private readonly IOperatorRecognizer _recognizer;
     private Bitmap? _image;
     private byte[]? _png;
     private string _status = "绑定窗口后可截图";
@@ -24,9 +26,13 @@ public sealed class SidebarViewModel : ObservableObject, IDisposable
     private int _dispatchQueued;
     private bool _disposed;
     private long _displayGeneration = -1;
-    public SidebarViewModel(CaptureCoordinator capture, GameSessionManager sessions)
+    private IReadOnlyList<string> _disabledOperators = Array.Empty<string>();
+    private string _recognitionSummary = "打开游戏的盟约确认页面，点击“识别禁用干员”。";
+    private bool _isRecognizing;
+    private GameSessionSnapshot? _recognitionContext;
+    public SidebarViewModel(CaptureCoordinator capture, GameSessionManager sessions, IOperatorRecognizer recognizer)
     {
-        _capture = capture; _sessions = sessions;
+        _capture = capture; _sessions = sessions; _recognizer = recognizer;
         _capture.Updated += OnCapture;
         _sessions.Updated += OnSession;
         ScreenshotCommand = new AsyncRelayCommand(ScreenshotAsync);
@@ -34,17 +40,92 @@ public sealed class SidebarViewModel : ObservableObject, IDisposable
         StopPreviewCommand = new AsyncRelayCommand(StopPreviewAsync);
         ToggleCommand = new RelayCommand(() => Collapsed = !Collapsed);
         RequestPermissionCommand = new RelayCommand(RequestPermission);
+        RecognizeOperatorsCommand = new AsyncRelayCommand(RecognizeOperatorsAsync,
+            () => !_disposed && _sessions.Current.CanPreview);
     }
     public Bitmap? Image { get => _image; private set => SetProperty(ref _image, value); }
     public string Status { get => _status; private set => SetProperty(ref _status, value); }
     public bool Collapsed { get => _collapsed; set => SetProperty(ref _collapsed, value); }
     public int Fps { get => _fps; set => SetProperty(ref _fps, Math.Clamp(value, 1, 5)); }
     public bool IsMac => OperatingSystem.IsMacOS();
+    public IReadOnlyList<string> DisabledOperators
+    {
+        get => _disabledOperators;
+        private set
+        {
+            if (SetProperty(ref _disabledOperators, value)) OnPropertyChanged(nameof(DisabledOperatorTitle));
+        }
+    }
+    public string DisabledOperatorTitle => $"禁用干员（{DisabledOperators.Count}）";
+    public string RecognitionSummary { get => _recognitionSummary; private set => SetProperty(ref _recognitionSummary, value); }
+    public bool IsRecognizing { get => _isRecognizing; private set => SetProperty(ref _isRecognizing, value); }
     public IAsyncRelayCommand ScreenshotCommand { get; }
     public IRelayCommand StartPreviewCommand { get; }
     public IAsyncRelayCommand StopPreviewCommand { get; }
     public IRelayCommand ToggleCommand { get; }
     public IRelayCommand RequestPermissionCommand { get; }
+    public IAsyncRelayCommand RecognizeOperatorsCommand { get; }
+
+    private async Task RecognizeOperatorsAsync(CancellationToken token)
+    {
+        if (_disposed || !_sessions.Current.CanPreview) return;
+        var context = _sessions.Current;
+        _recognitionContext = context;
+        DisabledOperators = Array.Empty<string>();
+        IsRecognizing = true;
+        RecognitionSummary = "正在截取当前游戏画面…";
+        try
+        {
+            var capture = await _capture.CaptureOnceAsync(token);
+            token.ThrowIfCancellationRequested();
+            if (!IsRecognitionCurrent(context)) return;
+            if (capture.Error is not null) throw new InvalidOperationException(capture.Error.Message);
+            var frame = capture.Frame ?? throw new InvalidOperationException("未获取到游戏截图");
+            if (frame.SessionId != context.SessionId || frame.BindingGeneration != context.BindingGeneration ||
+                frame.GeometryVersion != context.GeometryVersion)
+                throw new InvalidOperationException("游戏窗口已变化，请重新识别");
+            Apply(capture);
+            RecognitionSummary = "正在离线识别禁用盟约并筛选干员…";
+            var result = await _recognizer.RecognizeAsync(frame.Png, token);
+            token.ThrowIfCancellationRequested();
+            if (!IsRecognitionCurrent(context)) return;
+            DisabledOperators = result.DisabledOperators;
+            RecognitionSummary = $"共 {result.TotalOperators} 名 · 禁用 {result.DisabledOperators.Count} 名 · " +
+                $"可选 {result.AvailableOperators} 名\n截图时间 {frame.CapturedAt.ToLocalTime():HH:mm:ss}";
+        }
+        catch (OperationCanceledException) when (token.IsCancellationRequested)
+        {
+            if (!_disposed && ReferenceEquals(_recognitionContext, context))
+            {
+                _recognitionContext = null;
+                RecognitionSummary = "识别已取消，请重新识别。";
+            }
+        }
+        catch (Exception e)
+        {
+            if (!_disposed && ReferenceEquals(_recognitionContext, context))
+            {
+                _recognitionContext = null;
+                DisabledOperators = Array.Empty<string>();
+                RecognitionSummary = $"识别失败：{e.Message}";
+            }
+        }
+        finally { if (!_disposed) IsRecognizing = false; }
+    }
+
+    private bool IsRecognitionCurrent(GameSessionSnapshot context)
+    {
+        var current = _sessions.Current;
+        return !_disposed && ReferenceEquals(_recognitionContext, context) && current.CanPreview &&
+            current.SessionId == context.SessionId && current.BindingGeneration == context.BindingGeneration &&
+            current.GeometryVersion == context.GeometryVersion;
+    }
+
+    public async Task StopRecognitionAsync()
+    {
+        RecognizeOperatorsCommand.Cancel();
+        if (RecognizeOperatorsCommand.ExecutionTask is { } task) await task;
+    }
 
     private async Task ScreenshotAsync()
     {
@@ -125,6 +206,14 @@ public sealed class SidebarViewModel : ObservableObject, IDisposable
     private void OnSession(GameSessionSnapshot snapshot) => Dispatcher.UIThread.Post(() =>
     {
         if (_disposed) return;
+        RecognizeOperatorsCommand.NotifyCanExecuteChanged();
+        if (_recognitionContext is { } context && !IsRecognitionCurrent(context))
+        {
+            _recognitionContext = null;
+            RecognizeOperatorsCommand.Cancel();
+            DisabledOperators = Array.Empty<string>();
+            RecognitionSummary = "目标窗口状态已变化，请重新识别。";
+        }
         if (_displayGeneration != snapshot.BindingGeneration || snapshot.SessionId is null || !snapshot.CanPreview)
         {
             _displayGeneration = snapshot.BindingGeneration;
@@ -151,6 +240,7 @@ public sealed class SidebarViewModel : ObservableObject, IDisposable
     {
         if (_disposed) return;
         _disposed = true;
+        RecognizeOperatorsCommand.Cancel();
         Interlocked.Exchange(ref _pendingOutcome, null);
         _capture.Updated -= OnCapture;
         _sessions.Updated -= OnSession;

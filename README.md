@@ -1,6 +1,8 @@
 # GameSidebar · B2 双平台侧边栏与截图
 
-GameSidebar 是面向 Windows x64 和 Apple Silicon Mac 的窗口绑定与截图诊断程序。本轮实现了外部目标配置、真实窗口绑定、右侧侧边栏、单帧 PNG 和 1–5 FPS 预览。真实鼠标/键盘操作、OCR、长图和游戏业务识别属于后续批次。
+GameSidebar 是面向 Windows x64 和 Apple Silicon Mac 的窗口绑定与截图诊断程序，支持外部目标配置、真实窗口绑定、右侧侧边栏、单帧 PNG 和 1–5 FPS 预览，现已加入本地盟约识别与禁用干员列表。真实鼠标/键盘操作、长图属于后续批次。
+
+2026-11-11：已将 [OpenCV + RapidOCR 离线识别](tools/offline_recognition/README.md) 接入 Avalonia 主程序侧边栏，点击“识别禁用干员”自动截图并显示禁用名单。已根据实际失败反馈修正低分辨率时取色范围误碰绿色说明文字的问题；当前通过 26 项回归、7 项发布包回放检查，以及发布包 C# 识别服务的 3 个实际调用用例。
 
 ## 运行
 
@@ -19,6 +21,26 @@ dotnet test GameSidebar.sln -c Release --no-build --no-restore
 - Demo：`dotnet run --project src/GameSidebar.App -- --demo`，只用于 UI 和会话逻辑；不会自动代替真实窗口模式。
 
 Windows 包与 Mac `.app` 都附 `target-game.example.json`，没有默认的活动 `target-game.json`。两平台游戏先由用户正常启动；可直接在候选窗口列表手动绑定。
+
+## 侧边栏禁用干员识别
+
+绑定游戏窗口后，进入游戏的盟约确认页面，点击侧边栏“识别禁用干员”。程序会重新截取当前画面，在本地识别禁用盟约，按干员库规则生成可滚动的禁用干员名单，并显示人数和截图时间。“截图预览与设置”可展开查看所用画面。
+
+颜色判定通过名称定位取色区域，直接区分绿色激活和灰色禁用，无需检测圆形图标。取色尺度同时参考文字高度和单字宽度，避免低分辨率下 OCR 字框偏高而取到绿色说明文字；颜色判断按前景主色投票，容忍少量背景杂色。用户提供的新图原图、1097 像素复现版本及其他采集尺寸已实际回放验证。
+
+识别期间按钮禁用并显示进度。识别失败时清空名单并显示原因；换绑、目标不可用、窗口位置或尺寸变化时取消在途任务并清空旧名单。预览不会自动触发识别；游戏内更换盟约组合后应再次点击识别按钮。单次识别进程限时 60 秒，应用退出会取消任务并结束识别子进程。
+
+Mac 打包脚本和 Windows CI 包含本地 OCR 组件、Python 运行时、模型和两份干员 JSON，无需用户额外安装 Python。首次准备构建环境：
+
+```sh
+python3.12 -m venv .venv-recognition
+.venv-recognition/bin/python -m pip install -r tools/offline_recognition/requirements-build.txt
+tools/package-macos.sh
+```
+
+源码直接 `dotnet run --project src/GameSidebar.App` 会自动查找本仓库的 `.venv-recognition`。其他开发环境可设置 `ARKSIDE_RECOGNITION_PYTHON` 为已安装识别依赖的 Python 绝对路径。主程序使用 Avalonia 展示列表，识别组件无需 PySide6；PySide6 仅用于之前的独立验证界面。
+
+本次本机 Release 编译通过（0 警告、0 错误）；Mac 应用及识别组件已重新构建。已实际执行发布包识别组件，并通过发布包中的 C# 识别服务回放原样张、新图和低分辨率图，逐项比对盟约和干员名单。当前验证使用保存的真实游戏截图，没有操作游戏或重新采集实时窗口。Windows 原生识别组件由 Windows CI 构建，本机未执行 Windows 构建或运行。
 
 ## 目标配置
 

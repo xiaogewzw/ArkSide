@@ -22,7 +22,7 @@ public sealed class SidebarWindow : Window
     {
         ViewModel = viewModel; _sessions = sessions;
         DataContext = viewModel;
-        Title = "GameSidebar · 截图预览";
+        Title = "GameSidebar · 游戏助手";
         Width = 360; Height = 640; MinHeight = 320;
         ShowActivated = false; ShowInTaskbar = false; Topmost = false;
         WindowStartupLocation = WindowStartupLocation.Manual;
@@ -30,11 +30,11 @@ public sealed class SidebarWindow : Window
         var toggle = Button("☰", nameof(SidebarViewModel.ToggleCommand));
         toggle.Width = 32; toggle.Height = 32;
         header.Children.Add(toggle);
-        var title = new TextBlock { Text = "截图预览", FontWeight = FontWeight.Bold, VerticalAlignment = VerticalAlignment.Center };
+        var title = new TextBlock { Text = "游戏助手", FontWeight = FontWeight.Bold, VerticalAlignment = VerticalAlignment.Center };
         title.Bind(IsVisibleProperty, new Binding(nameof(SidebarViewModel.Collapsed))
         { Converter = new InvertBooleanConverter() });
         header.Children.Add(title);
-        var content = new Grid { RowDefinitions = new("Auto,Auto,*,Auto"), RowSpacing = 8 };
+        var content = new Grid { RowDefinitions = new("Auto,Auto,*,Auto,Auto"), RowSpacing = 8 };
         content.Bind(IsVisibleProperty, new Binding(nameof(SidebarViewModel.Collapsed))
         { Converter = new InvertBooleanConverter() });
         var actions = new WrapPanel { Orientation = Orientation.Horizontal };
@@ -50,23 +50,44 @@ public sealed class SidebarWindow : Window
         actions.Children.Add(save);
         actions.Children.Add(Button("开始预览", nameof(SidebarViewModel.StartPreviewCommand)));
         actions.Children.Add(Button("停止", nameof(SidebarViewModel.StopPreviewCommand)));
+        actions.Children.Add(Button("识别禁用干员", nameof(SidebarViewModel.RecognizeOperatorsCommand)));
         content.Children.Add(actions);
+        var recognition = new StackPanel { Spacing = 5 };
+        var recognitionTitle = new TextBlock { FontWeight = FontWeight.Bold };
+        recognitionTitle.Bind(TextBlock.TextProperty, new Binding(nameof(SidebarViewModel.DisabledOperatorTitle)));
+        recognition.Children.Add(recognitionTitle);
+        var recognitionStatus = new TextBlock { TextWrapping = TextWrapping.Wrap };
+        recognitionStatus.Bind(TextBlock.TextProperty, new Binding(nameof(SidebarViewModel.RecognitionSummary)));
+        recognition.Children.Add(recognitionStatus);
+        var progress = new ProgressBar { IsIndeterminate = true, Height = 4 };
+        progress.Bind(IsVisibleProperty, new Binding(nameof(SidebarViewModel.IsRecognizing)));
+        recognition.Children.Add(progress);
+        Grid.SetRow(recognition, 1);
+        content.Children.Add(recognition);
+        var disabledOperators = new ListBox { MinHeight = 60, FontSize = 14 };
+        disabledOperators.Bind(ItemsControl.ItemsSourceProperty, new Binding(nameof(SidebarViewModel.DisabledOperators)));
+        Grid.SetRow(disabledOperators, 2);
+        content.Children.Add(disabledOperators);
+        var diagnostics = new StackPanel { Spacing = 6 };
         var rate = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 6 };
         rate.Children.Add(new TextBlock { Text = "FPS (1–5)", VerticalAlignment = VerticalAlignment.Center });
         var fps = new NumericUpDown { Minimum = 1, Maximum = 5, Increment = 1, Width = 60 };
         fps.Bind(NumericUpDown.ValueProperty, new Binding(nameof(SidebarViewModel.Fps)) { Mode = Avalonia.Data.BindingMode.TwoWay });
         rate.Children.Add(fps);
         if (viewModel.IsMac) rate.Children.Add(Button("请求屏幕录制权限", nameof(SidebarViewModel.RequestPermissionCommand)));
-        content.Children.Add(rate);
-        Grid.SetRow(rate, 1);
-        var image = new Image { Stretch = Stretch.Uniform };
+        diagnostics.Children.Add(rate);
+        var image = new Image { Stretch = Stretch.Uniform, Height = 110 };
         image.Bind(Image.SourceProperty, new Binding(nameof(SidebarViewModel.Image)));
-        Grid.SetRow(image, 2);
-        content.Children.Add(image);
+        diagnostics.Children.Add(image);
+        var preview = new Expander { Header = "截图预览与设置", Content = diagnostics,
+            IsExpanded = false, HorizontalAlignment = HorizontalAlignment.Stretch };
+        Grid.SetRow(preview, 3);
+        content.Children.Add(preview);
         var status = new TextBlock { TextWrapping = TextWrapping.Wrap };
         status.Bind(TextBlock.TextProperty, new Binding(nameof(SidebarViewModel.Status)));
-        Grid.SetRow(status, 3);
-        content.Children.Add(status);
+        var statusScroll = new ScrollViewer { Content = status, MaxHeight = 90 };
+        Grid.SetRow(statusScroll, 4);
+        content.Children.Add(statusScroll);
         var layout = new Grid { Margin = new Thickness(8), RowDefinitions = new("Auto,*"), RowSpacing = 8 };
         layout.Children.Add(header);
         Grid.SetRow(content, 1);

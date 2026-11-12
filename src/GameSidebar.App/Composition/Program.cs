@@ -6,9 +6,11 @@ using GameSidebar.App.Development;
 using GameSidebar.App.Storage;
 using GameSidebar.App.ViewModels;
 using GameSidebar.App.Views;
+using GameSidebar.App.Recognition;
 using GameSidebar.Application.Abstractions;
 using GameSidebar.Application.Sessions;
 using GameSidebar.Application.Capture;
+using GameSidebar.Application.Recognition;
 using GameSidebar.Infrastructure.Maa;
 using GameSidebar.Platform.MacOS;
 using GameSidebar.Platform.Windows.Discovery;
@@ -54,6 +56,7 @@ internal static class Program
         if (demo) builder.Services.AddSingleton<IGameCaptureBackend, FakeCaptureBackend>();
         else builder.Services.AddSingleton<IGameCaptureBackend, MaaCaptureBackend>();
         builder.Services.AddSingleton<CaptureCoordinator>();
+        builder.Services.AddSingleton<IOperatorRecognizer, OfflineOperatorRecognizer>();
         builder.Services.AddSingleton<SidebarViewModel>();
         builder.Services.AddSingleton(sp => new MainViewModel(sp.GetRequiredService<GameSessionManager>(),
             sp.GetRequiredService<SettingsStore>(), sp.GetRequiredService<TargetConfigStore>(),
@@ -95,6 +98,7 @@ public sealed class SidebarApplication : Avalonia.Application
             bool shutdownComplete = false;
             async Task ShutdownAsync()
             {
+                await sidebar.ViewModel.StopRecognitionAsync();
                 await Program.Host.Services.GetRequiredService<CaptureCoordinator>().DisposeAsync();
                 sidebar.ViewModel.Dispose();
                 sidebar.CloseForShutdown();

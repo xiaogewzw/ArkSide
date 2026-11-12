@@ -19,6 +19,8 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Console" />
     <Content Include="../../assets/profiles/*.json" Link="profiles/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
     <Content Include="../../assets/target-game.example.json" Link="target-game.example.json" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../../tools/offline_recognition/__init__.py;../../tools/offline_recognition/cli.py;../../tools/offline_recognition/domain.py;../../tools/offline_recognition/vision.py" Link="recognition/python/tools/offline_recognition/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+    <Content Include="../../干员数据/干员详细信息.json;../../干员数据/干员禁用规则.json" Link="recognition/data/%(Filename)%(Extension)" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
   </ItemGroup>
   <Target Name="BuildMacBridge" AfterTargets="Build" Condition="$([MSBuild]::IsOSPlatform('OSX')) and ('$(RuntimeIdentifier)' == '' or '$(RuntimeIdentifier)' == 'osx-arm64')">
     <Exec Command="swiftc -O -parse-as-library -emit-library -o &quot;$(TargetDir)libGameSidebarMac.dylib&quot; &quot;$(MSBuildProjectDirectory)/../GameSidebar.Platform.MacOS/Native/GameSidebarMac.swift&quot; -framework AppKit -framework ScreenCaptureKit" />
