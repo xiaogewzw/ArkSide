@@ -102,34 +102,38 @@ public sealed class OperatorImportViewModel(IOperatorRecognizer recognizer, Oper
             cancellation.Token.ThrowIfCancellationRequested();
         }
         _operation = cancellation;
-        IsBusy = true; Result = null; Groups = []; Screenshot = null; Failure = OperatorFailure.None;
-        FileName = name; Status = loadingStatus;
+        IsBusy = true; Failure = OperatorFailure.None;
+        Status = loadingStatus;
         OnPropertyChanged(string.Empty);
         var stage = ImportStage.Catalog;
         try
         {
             CheckCurrent(checkCapture: true);
             var catalog = store.Load();
-            Catalog = catalog;
             stage = ImportStage.Capture;
             var screenshot = await readImage(cancellation.Token);
             // Once accepted, this screenshot is independent of subsequent window changes.
             CheckCurrent(checkCapture: true);
-            Screenshot = screenshot;
             Status = "正在离线识别禁用盟约…";
             OnPropertyChanged(string.Empty);
             stage = ImportStage.Recognition;
-            var result = await recognizer.RecognizeAsync(Screenshot, cancellation.Token);
+            var result = await recognizer.RecognizeAsync(screenshot, cancellation.Token);
             CheckCurrent();
             stage = ImportStage.Catalog;
             var fresh = store.Load();
             if (fresh.RecognitionSignature != catalog.RecognitionSignature)
                 throw new InvalidDataException("识别期间干员或盟约数据已变化，请重新识别。");
+            // Prepare the complete replacement before touching the last successful data.
+            var tag = fresh.AllowedTags.Contains(SelectedTag) &&
+                fresh.Operators.Any(o => o.Tag.Contains(SelectedTag!)) ? SelectedTag : null;
+            var vice = fresh.ViceCovenants.Contains(SelectedVice) ? SelectedVice : null;
+            var groups = OperatorRecommendations.Select(fresh.Operators, result, tag, vice, Limit, SelectedRank);
             Catalog = fresh;
-            // Validate before publishing a successful result.
-            _ = OperatorRecommendations.Select(fresh.Operators, result);
             Result = result;
-            RefreshGroups();
+            Screenshot = screenshot;
+            FileName = name;
+            SelectedTag = tag; SelectedVice = vice;
+            Groups = groups;
             Status = "识别完成";
         }
         catch (OperationCanceledException) when (cancellation.IsCancellationRequested)
@@ -139,7 +143,6 @@ public sealed class OperatorImportViewModel(IOperatorRecognizer recognizer, Oper
             _logger.LogWarning(e, "Operator recognition failed during {Stage}", stage);
             if (revision == _revision)
             {
-                Result = null; Groups = [];
                 Failure = stage switch
                 {
                     ImportStage.Catalog => OperatorFailure.Catalog,

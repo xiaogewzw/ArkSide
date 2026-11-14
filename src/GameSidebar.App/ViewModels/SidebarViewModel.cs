@@ -16,10 +16,11 @@ public sealed class SidebarViewModel : ObservableObject, IDisposable
     private bool _collapsed;
     private bool _disposed;
     private IReadOnlyList<string> _disabledOperators = [];
-    private string _recognitionSummary = "打开游戏的盟约确认页面，点击“识别干员推荐”。";
+    private string _recognitionSummary = "打开游戏的盟约确认页面，点击“开始识别”。";
     private bool _isRecognizing;
     private bool _needsCapturePermission;
-    private string _connectionStatus = "正在搜索明日方舟应用…";
+    private string _connectionStatus = "未找到明日方舟";
+    private bool _isConnected;
     private bool _canSearch = true;
     public SidebarViewModel(CaptureCoordinator capture, GameSessionManager sessions, OperatorImportViewModel recommendations)
     {
@@ -39,6 +40,8 @@ public sealed class SidebarViewModel : ObservableObject, IDisposable
         });
     }
     public string ConnectionStatus { get => _connectionStatus; private set => SetProperty(ref _connectionStatus, value); }
+    public bool IsConnected { get => _isConnected; private set => SetProperty(ref _isConnected, value); }
+    public string RecognitionButtonText => IsRecognizing ? "识别中…" : "开始识别";
     public bool CanSearch { get => _canSearch; private set => SetProperty(ref _canSearch, value); }
     public bool Collapsed { get => _collapsed; set => SetProperty(ref _collapsed, value); }
     public bool IsMac => OperatingSystem.IsMacOS();
@@ -56,7 +59,14 @@ public sealed class SidebarViewModel : ObservableObject, IDisposable
         ? $"禁用主盟约：{string.Join("、", result.DisabledMainCovenants.DefaultIfEmpty("无"))}\n禁用副盟约：{string.Join("、", result.DisabledViceCovenants.DefaultIfEmpty("无"))}"
         : "识别后显示禁用盟约与名单。";
     public string RecognitionSummary { get => _recognitionSummary; private set => SetProperty(ref _recognitionSummary, value); }
-    public bool IsRecognizing { get => _isRecognizing; private set => SetProperty(ref _isRecognizing, value); }
+    public bool IsRecognizing
+    {
+        get => _isRecognizing;
+        private set
+        {
+            if (SetProperty(ref _isRecognizing, value)) OnPropertyChanged(nameof(RecognitionButtonText));
+        }
+    }
     public IRelayCommand ToggleCommand { get; }
     public IRelayCommand RequestPermissionCommand { get; }
     public IAsyncRelayCommand RecognizeOperatorsCommand { get; }
@@ -69,9 +79,8 @@ public sealed class SidebarViewModel : ObservableObject, IDisposable
         DisabledOperators = Recommendations.Result?.DisabledOperators ?? [];
         NeedsCapturePermission = Recommendations.Failure == OperatorFailure.CapturePermission;
         OnPropertyChanged(nameof(CovenantSummary));
-        RecognitionSummary = Recommendations.Result is { } r && Recommendations.Failure == OperatorFailure.None
-            ? $"{Recommendations.Status}\n共 {r.TotalOperators} 名 · 禁用 {r.DisabledOperators.Count} 名 · 可选 {r.AvailableOperators} 名"
-            : Recommendations.Status;
+        RecognitionSummary = Recommendations.IsBusy ? "正在识别，请稍候…" :
+            Recommendations.Status.Replace("识别干员推荐", "开始识别");
     }
 
     private async Task RecognizeOperatorsAsync(CancellationToken token)
@@ -123,18 +132,9 @@ public sealed class SidebarViewModel : ObservableObject, IDisposable
         if (_disposed) return;
         RecognizeOperatorsCommand.NotifyCanExecuteChanged();
         CanSearch = snapshot.Identity is null && snapshot.State is not (GameSessionState.Starting or GameSessionState.Binding);
-        ConnectionStatus = snapshot.State switch
-        {
-            GameSessionState.Starting or GameSessionState.Binding or GameSessionState.Validating => "正在连接明日方舟应用…",
-            GameSessionState.GameLost => "未找到明日方舟应用",
-            GameSessionState.Faulted => "连接异常，请重新搜索或选择游戏窗口。",
-            GameSessionState.NeedsSelection when snapshot.SelectionKind == SelectionKind.Window => "找到多个匹配窗口，请在“窗口设置”中选择。",
-            _ when snapshot.Identity is not null && snapshot.IsMinimized => "已连接明日方舟 · 窗口已最小化",
-            _ when snapshot.CanPreview => "已连接明日方舟",
-            _ when snapshot.Identity is not null => "已连接明日方舟 · 暂时无法截图",
-            GameSessionState.NotConfigured => "请在“窗口设置”中选择游戏应用。",
-            _ => "未找到明日方舟应用"
-        };
+        IsConnected = snapshot.Identity?.Verification == IdentityVerification.Verified &&
+            snapshot.State is not (GameSessionState.GameLost or GameSessionState.Faulted or GameSessionState.Unbound);
+        ConnectionStatus = IsConnected ? "已连接明日方舟" : "未找到明日方舟";
     });
     private void RequestPermission()
     {

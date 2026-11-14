@@ -278,7 +278,7 @@ public sealed class OperatorRecommendationTests
     }
 
     [Fact]
-    public async Task New_import_clears_previous_result_and_cancel_waits_for_worker()
+    public async Task New_import_preserves_previous_result_and_cancel_waits_for_worker()
     {
         using var fixture = new CatalogFixture();
         fixture.Write(["输出核心"]);
@@ -292,15 +292,17 @@ public sealed class OperatorRecommendationTests
         using var vm = new OperatorImportViewModel(recognizer, fixture.Store);
         await vm.ImportAsync("first.png", _ => Task.FromResult(new byte[] { 1 }));
         Assert.Single(vm.Groups);
+        var previous = vm.Result;
         var pending = vm.ImportAsync("second.png", _ => Task.FromResult(new byte[] { 2 }));
         await entered.Task.WaitAsync(TimeSpan.FromSeconds(3));
-        Assert.Null(vm.Result);
-        Assert.Empty(vm.Groups);
+        Assert.Same(previous, vm.Result);
+        Assert.Single(vm.Groups);
         Assert.True(vm.IsBusy);
         await vm.StopAsync();
         await pending;
         Assert.False(vm.IsBusy);
-        Assert.Null(vm.Result);
+        Assert.Same(previous, vm.Result);
+        Assert.Single(vm.Groups);
         Assert.Contains("取消", vm.Status);
     }
 
@@ -341,20 +343,61 @@ public sealed class OperatorRecommendationTests
         if (kind != OperatorFailure.Recognition) Assert.Equal(0, recognizer.Calls);
     }
 
-    [Fact]
-    public async Task Import_read_error_and_recognition_error_leave_no_old_recommendations()
+    [Theory]
+    [InlineData("capture")]
+    [InlineData("recognition")]
+    [InlineData("catalog")]
+    [InlineData("changed_catalog")]
+    [InlineData("invalid_result")]
+    public async Task Failed_retry_preserves_successful_data_and_filters(string failure)
     {
         using var fixture = new CatalogFixture();
         fixture.Write(["输出核心"]);
-        var recognizer = new StubRecognizer((_, _) => Task.FromResult(new OperatorRecognitionResult([], 1, 1, [], [])));
+        var retry = false;
+        var recognizer = new StubRecognizer((_, _) =>
+        {
+            if (retry && failure == "recognition") throw new InvalidDataException("无法识别");
+            if (retry && failure == "changed_catalog") fixture.Write(["输出核心"], ["奥术"]);
+            return Task.FromResult(new OperatorRecognitionResult([], retry && failure == "invalid_result" ? 2 : 1, 1, [], []));
+        });
         using var vm = new OperatorImportViewModel(recognizer, fixture.Store);
         await vm.ImportAsync("good.png", _ => Task.FromResult(new byte[] { 1 }));
-        await vm.ImportAsync("missing.png", _ => throw new IOException("读取失败"));
-        Assert.Null(vm.Result); Assert.Empty(vm.Groups); Assert.False(vm.IsBusy);
-        Assert.Equal(1, recognizer.Calls);
-        using var failed = new OperatorImportViewModel(new StubRecognizer((_, _) => throw new InvalidDataException("无法识别")), fixture.Store);
-        await failed.ImportAsync("bad.png", _ => Task.FromResult(new byte[] { 1 }));
-        Assert.Null(failed.Result); Assert.Empty(failed.Groups); Assert.Equal("请将游戏画面调整到所有盟约都显示出来", failed.Status);
+        vm.Filter("输出核心", "远见", 6);
+        var result = vm.Result;
+        var groups = vm.Groups;
+        var catalog = vm.Catalog;
+        var screenshot = vm.Screenshot;
+        retry = true;
+        if (failure == "catalog") File.WriteAllText(fixture.Store.FilePath, "{broken");
+        await vm.ImportAsync("retry.png", _ => failure == "capture"
+            ? throw new IOException("读取失败") : Task.FromResult(new byte[] { 2 }));
+        Assert.Same(result, vm.Result); Assert.Same(groups, vm.Groups);
+        Assert.Same(catalog, vm.Catalog); Assert.Same(screenshot, vm.Screenshot);
+        Assert.Equal("good.png", vm.FileName);
+        Assert.Equal("输出核心", vm.SelectedTag); Assert.Equal("远见", vm.SelectedVice);
+        Assert.Equal(6, vm.Limit);
+        Assert.False(vm.IsBusy); Assert.NotEqual(OperatorFailure.None, vm.Failure);
+        vm.Filter("输出核心", "远见", 6);
+        Assert.Single(Assert.Single(vm.Groups).Operators);
+    }
+
+    [Fact]
+    public async Task Successful_retry_replaces_previous_data()
+    {
+        using var fixture = new CatalogFixture();
+        fixture.Write(["输出核心"]);
+        var calls = 0;
+        var recognizer = new StubRecognizer((_, _) => Task.FromResult(++calls == 1
+            ? new OperatorRecognitionResult([], 1, 1, [], [])
+            : new OperatorRecognitionResult(["A"], 1, 0, [], [])));
+        using var vm = new OperatorImportViewModel(recognizer, fixture.Store);
+        await vm.ImportAsync("first.png", _ => Task.FromResult(new byte[] { 1 }));
+        await vm.ImportAsync("second.png", _ => Task.FromResult(new byte[] { 2 }));
+        Assert.Equal("A", Assert.Single(vm.Result!.DisabledOperators));
+        Assert.Empty(Assert.Single(vm.Groups).Operators);
+        Assert.Equal(new byte[] { 2 }, vm.Screenshot);
+        Assert.Equal("second.png", vm.FileName);
+        Assert.Equal(OperatorFailure.None, vm.Failure);
     }
 
     [Fact]
@@ -490,7 +533,8 @@ public sealed class OperatorRecommendationTests
                     time.Advance(TimeSpan.FromSeconds(1));
                     await lost.Task.WaitAsync(TimeSpan.FromSeconds(5));
                     await dispatcher.InvokeAsync(() => { }, DispatcherPriority.Background);
-                    Assert.Equal("未找到明日方舟应用", sidebar.ConnectionStatus);
+                    Assert.Equal("未找到明日方舟", sidebar.ConnectionStatus);
+                    Assert.False(sidebar.IsConnected);
                     Assert.True(sidebar.CanSearch);
                     Assert.False(sidebar.RecognizeOperatorsCommand.CanExecute(null));
                     Assert.Same(result, sidebar.Recommendations.Result);
@@ -504,6 +548,8 @@ public sealed class OperatorRecommendationTests
                     await manager.SearchNowAsync();
                     await dispatcher.InvokeAsync(() => { }, DispatcherPriority.Background);
                     Assert.True(sidebar.RecognizeOperatorsCommand.CanExecute(null));
+                    Assert.Equal("已连接明日方舟", sidebar.ConnectionStatus);
+                    Assert.True(sidebar.IsConnected);
                     Assert.Same(result, sidebar.Recommendations.Result);
                     Assert.Single(sidebar.Recommendations.Groups);
                     completed.TrySetResult();

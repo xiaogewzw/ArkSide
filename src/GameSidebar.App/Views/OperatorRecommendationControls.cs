@@ -18,6 +18,7 @@ public sealed class OperatorRecommendationControls : IDisposable
     { public override string ToString() => Text; }
     private readonly OperatorImportViewModel _model;
     private readonly string _idlePrompt;
+    private readonly bool _showDisabledNotes;
     private readonly TextBlock _empty = Label("");
     private readonly WrapPanel _tabs = new() { Orientation = Orientation.Horizontal };
     private readonly ComboBox _vice = new() { MinWidth = 155, MaxDropDownHeight = 336 };
@@ -27,7 +28,7 @@ public sealed class OperatorRecommendationControls : IDisposable
         ItemsSource = new[] { "全部等级", "Rank 1", "Rank 2", "Rank 3", "Rank 4", "Rank 5", "Rank 6" },
         SelectedIndex = 0
     };
-    private readonly ComboBox _rows = new() { Width = 80, ItemsSource = new[] { "1 排", "2 排" }, SelectedIndex = 0 };
+    private readonly ComboBox _rows = new() { Width = 80, ItemsSource = new[] { "1 排", "2 排" }, SelectedIndex = 1 };
     private readonly StackPanel _groups = new() { Spacing = 18 };
     private readonly Dictionary<string, Bitmap?> _portraits = new(StringComparer.Ordinal);
     private readonly IBrush _accent = Brush.Parse("#299C87");
@@ -37,9 +38,10 @@ public sealed class OperatorRecommendationControls : IDisposable
     public StackPanel Results { get; } = new() { Spacing = 12 };
     public Grid Footer { get; } = new() { ColumnDefinitions = new("*,Auto,Auto"), ColumnSpacing = 6 };
 
-    public OperatorRecommendationControls(OperatorImportViewModel model, string idlePrompt)
+    public OperatorRecommendationControls(OperatorImportViewModel model, string idlePrompt,
+        Control? footerAction = null, bool showDisabledNotes = true)
     {
-        _model = model; _idlePrompt = idlePrompt;
+        _model = model; _idlePrompt = idlePrompt; _showDisabledNotes = showDisabledNotes;
         Filters.Children.Add(_tabs);
         var filter = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 10 };
         filter.Children.Add(new TextBlock { Text = "副盟约", Width = 42, VerticalAlignment = VerticalAlignment.Center });
@@ -48,7 +50,7 @@ public sealed class OperatorRecommendationControls : IDisposable
         rankFilter.Children.Add(new TextBlock { Text = "Rank", Width = 42, VerticalAlignment = VerticalAlignment.Center });
         rankFilter.Children.Add(_rank); Filters.Children.Add(rankFilter);
         Results.Children.Add(_empty); Results.Children.Add(_groups);
-        Footer.Children.Add(new TextBlock { Text = "仅展示带标签的可用干员", FontSize = 12, VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap });
+        Footer.Children.Add(footerAction ?? new TextBlock { Text = "仅展示带标签的可用干员", FontSize = 12, VerticalAlignment = VerticalAlignment.Center, TextWrapping = TextWrapping.Wrap });
         var label = new TextBlock { Text = "显示", VerticalAlignment = VerticalAlignment.Center };
         Grid.SetColumn(label, 1); Footer.Children.Add(label);
         Grid.SetColumn(_rows, 2); Footer.Children.Add(_rows);
@@ -138,7 +140,7 @@ public sealed class OperatorRecommendationControls : IDisposable
         }
         panel.Children.Add(group.Operators.Count > 0 ? HorizontalGallery(grid) : Label(group.EmptyMessage));
         var notes = new List<string>();
-        if (group.DisabledCount > 0) notes.Add($"已隐藏 {group.DisabledCount} 名禁用干员");
+        if (_showDisabledNotes && group.DisabledCount > 0) notes.Add($"已隐藏 {group.DisabledCount} 名禁用干员");
         if (notes.Count > 0) panel.Children.Add(new TextBlock { Text = string.Join(" · ", notes), FontSize = 11, Opacity = 0.7 });
         return panel;
     }

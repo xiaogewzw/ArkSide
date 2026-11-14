@@ -119,9 +119,11 @@ public sealed class SidebarApplication : Avalonia.Application
 #endif
             var viewModel = Program.Host.Services.GetRequiredService<MainViewModel>();
             var window = new MainWindow(viewModel);
+#if !ARKSIDE_PRODUCTION
             void OpenSettings() { window.Show(); window.Activate(); }
+#endif
             var sidebar = new SidebarWindow(Program.Host.Services.GetRequiredService<SidebarViewModel>(),
-                Program.Host.Services.GetRequiredService<GameSessionManager>(), viewModel.SearchAgainAsync, OpenSettings);
+                Program.Host.Services.GetRequiredService<GameSessionManager>(), viewModel.SearchAgainAsync);
             sidebar.Opened += async (_, _) =>
             {
                 await viewModel.InitializeAsync();
