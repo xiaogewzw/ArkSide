@@ -1,5 +1,6 @@
 param([string]$OutputDirectory = "artifacts/release/windows/ArkSide")
 $ErrorActionPreference = "Stop"
+$env:PYTHONUTF8 = '1'
 Set-Location (Join-Path $PSScriptRoot "..")
 if (![System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.Runtime.InteropServices.OSPlatform]::Windows)) {
     throw "Windows 离线识别组件必须在 Windows 上构建。"
