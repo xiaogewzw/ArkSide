@@ -501,7 +501,7 @@
           "xunit.extensibility.core": "[2.9.3]"
         }
       },
-      "gamesidebar.app": {
+      "ArkSide": {
         "type": "Project",
         "dependencies": {
           "Avalonia": "[12.1.3, )",

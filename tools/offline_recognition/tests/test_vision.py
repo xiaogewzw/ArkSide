@@ -7,6 +7,7 @@ import numpy as np
 
 from ..domain import DEFAULT_DATA, RecognitionError, select_operators
 from ..vision import Recognizer, classify_covenant_color, read_image
+from .real_capture_cases import real_capture_cases
 
 
 class VisionTests(unittest.TestCase):
@@ -29,6 +30,22 @@ class VisionTests(unittest.TestCase):
 
     def test_sample_exact_json_including_list_order(self):
         self.assertEqual(self.baseline.result, self.expected)
+
+    def test_real_mac_and_windows_captures(self):
+        for name, image, expected in real_capture_cases(self.engine.operators, self.engine.options):
+            with self.subTest(capture=name):
+                recognition = self.engine.recognize(image)
+                self.assertEqual(recognition.result, expected)
+                self.assertEqual(len(recognition.evidence['labels']), 26)
+
+    def test_real_capture_erased_merged_names_are_not_inferred(self):
+        from .real_capture_cases import CAPTURES
+        from ..domain import ROOT
+
+        image = read_image(ROOT / 'windowsTest' / CAPTURES[0][1])
+        image[570:635, 1290:1600] = 0
+        with self.assertRaisesRegex(RecognitionError, '伊比利亚.*莱塔尼亚'):
+            self.engine.recognize(image)
 
     def test_all_labels_are_recognized_without_correction(self):
         labels = self.baseline.evidence["labels"]
@@ -56,6 +73,47 @@ class VisionTests(unittest.TestCase):
                 resized = cv2.resize(image, (width, round(image.shape[0] * width / image.shape[1])),
                                      interpolation=cv2.INTER_AREA)
                 self.assertEqual(self.engine.recognize(resized).result, expected)
+
+    def current_game_expected(self):
+        # Manually read the gray icons in the frozen in-game map page. Neither
+        # the OCR words nor a previous engine result supplies this answer.
+        return select_operators(self.engine.operators, {
+            "mainCovenant": ["维多利亚", "谢拉格", "卡西米尔", "乌萨斯", "莱塔尼亚"],
+            "viceCovenant": ["迅捷", "奇迹", "突袭", "不屈", "奥术"],
+        }, self.engine.options)
+
+    def test_in_game_single_main_row_merged_labels(self):
+        image = read_image(DEFAULT_DATA / "识别测试/游戏内截图-03.png")
+        recognition = self.engine.recognize(image)
+        self.assertEqual(recognition.result, self.current_game_expected())
+        diagnostics = recognition.evidence["diagnostics"]
+        self.assertEqual((diagnostics["layout"]["main_rows"], diagnostics["layout"]["vice_rows"]), (1, 2))
+        self.assertEqual(diagnostics["missing_before_retry"], ["伊比利亚", "维多利亚"])
+        self.assertEqual(diagnostics["missing_after_retry"], [])
+        self.assertEqual([item["texts"] for item in diagnostics["cell_retries"]], [["伊比利亚"], ["维多利亚"]])
+
+    def test_in_game_single_main_row_capture_sizes(self):
+        image = read_image(DEFAULT_DATA / "识别测试/游戏内截图-03.png")
+        for width in (942, 1097, 1131, 1177, 1280, 1412, 1920):
+            with self.subTest(width=width):
+                scaled = cv2.resize(image, (width, round(image.shape[0] * width / image.shape[1])),
+                                    interpolation=cv2.INTER_AREA)
+                self.assertEqual(self.engine.recognize(scaled).result, self.current_game_expected())
+
+    def test_in_game_layout_missing_bottom_row_is_rejected(self):
+        image = read_image(DEFAULT_DATA / "识别测试/游戏内截图-03.png")
+        with self.assertRaisesRegex(RecognitionError, "不完整"):
+            self.engine.recognize(image[:1000].copy())
+
+    def test_in_game_layout_does_not_fill_blank_cells_from_vocabulary(self):
+        image = read_image(DEFAULT_DATA / "识别测试/游戏内截图-03.png")
+        image[533:603, 636:940] = 0  # Remove both merged names, leaving their icons.
+        with self.assertRaisesRegex(RecognitionError, "伊比利亚.*维多利亚"):
+            self.engine.recognize(image)
+
+    def test_confirmation_layout_is_still_detected(self):
+        layout = self.baseline.evidence["diagnostics"]["layout"]
+        self.assertEqual((layout["main_rows"], layout["vice_rows"]), (2, 2))
 
     def test_gray_foreground_tolerates_small_green_heading_without_shape_detection(self):
         image = np.zeros((300, 400, 3), dtype=np.uint8)

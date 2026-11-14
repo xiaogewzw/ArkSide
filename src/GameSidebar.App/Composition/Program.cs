@@ -28,12 +28,21 @@ internal static class Program
     [STAThread]
     public static void Main(string[] args)
     {
+#if ARKSIDE_PRODUCTION
+        var demo = false;
+#else
         var demo = args.Contains("--demo", StringComparer.OrdinalIgnoreCase);
+#endif
         var builder = Microsoft.Extensions.Hosting.Host.CreateApplicationBuilder(args);
         builder.Logging.ClearProviders();
         builder.Logging.AddConsole();
+#if ARKSIDE_PRODUCTION
+        var settings = new SettingsStore(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "ArkSide"));
+        var targetConfig = new TargetConfigStore([], settings.DirectoryPath);
+#else
         var settings = new SettingsStore();
         var targetConfig = new TargetConfigStore(args);
+#endif
         builder.Logging.AddProvider(new RollingFileLoggerProvider(Path.Combine(settings.DirectoryPath, "logs")));
         builder.Services.AddSingleton(settings);
         builder.Services.AddSingleton(targetConfig);
@@ -57,6 +66,11 @@ internal static class Program
         else builder.Services.AddSingleton<IGameCaptureBackend, MaaCaptureBackend>();
         builder.Services.AddSingleton<CaptureCoordinator>();
         builder.Services.AddSingleton<IOperatorRecognizer, OfflineOperatorRecognizer>();
+        builder.Services.AddSingleton(_ => new OperatorCatalogStore());
+        builder.Services.AddTransient<OperatorImportViewModel>();
+#if !ARKSIDE_PRODUCTION
+        builder.Services.AddTransient<OperatorImportWindow>();
+#endif
         builder.Services.AddSingleton<SidebarViewModel>();
         builder.Services.AddSingleton(sp => new MainViewModel(sp.GetRequiredService<GameSessionManager>(),
             sp.GetRequiredService<SettingsStore>(), sp.GetRequiredService<TargetConfigStore>(),
@@ -81,27 +95,49 @@ internal static class Program
 
 public sealed class SidebarApplication : Avalonia.Application
 {
-    public override void Initialize() => Styles.Add(new FluentTheme());
+    public override void Initialize()
+    {
+        Name = "ArkSide";
+        Styles.Add(new FluentTheme());
+    }
     public override void OnFrameworkInitializationCompleted()
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+#if !ARKSIDE_PRODUCTION
+            if (desktop.Args?.Contains("--operator-picker", StringComparer.OrdinalIgnoreCase) == true)
+            {
+                var picker = Program.Host.Services.GetRequiredService<OperatorImportWindow>();
+                desktop.MainWindow = picker;
+                desktop.ShutdownMode = ShutdownMode.OnMainWindowClose;
+                var index = Array.IndexOf(desktop.Args, "--screenshot");
+                if (index >= 0 && index + 1 < desktop.Args.Length)
+                    picker.Opened += async (_, _) => await picker.ImportFromPathAsync(desktop.Args[index + 1]);
+                base.OnFrameworkInitializationCompleted();
+                return;
+            }
+#endif
             var viewModel = Program.Host.Services.GetRequiredService<MainViewModel>();
             var window = new MainWindow(viewModel);
+            void OpenSettings() { window.Show(); window.Activate(); }
             var sidebar = new SidebarWindow(Program.Host.Services.GetRequiredService<SidebarViewModel>(),
-                Program.Host.Services.GetRequiredService<GameSessionManager>());
-            window.Opened += (_, _) => sidebar.Attach(window);
-            window.Opened += (_, _) => Program.Host.Services.GetRequiredService<ILoggerFactory>()
-                .CreateLogger("Startup").LogInformation("Main window opened in {Mode} mode", viewModel.ModeText);
+                Program.Host.Services.GetRequiredService<GameSessionManager>(), viewModel.SearchAgainAsync, OpenSettings);
+            sidebar.Opened += async (_, _) =>
+            {
+                await viewModel.InitializeAsync();
+#if !ARKSIDE_PRODUCTION
+                if (desktop.Args?.Contains("--diagnostics", StringComparer.OrdinalIgnoreCase) == true) OpenSettings();
+#endif
+            };
             desktop.ShutdownMode = ShutdownMode.OnExplicitShutdown;
             Task? shutdownTask = null;
             bool shutdownComplete = false;
             async Task ShutdownAsync()
             {
+                await viewModel.InitializeAsync();
                 await sidebar.ViewModel.StopRecognitionAsync();
                 await Program.Host.Services.GetRequiredService<CaptureCoordinator>().DisposeAsync();
                 sidebar.ViewModel.Dispose();
-                sidebar.CloseForShutdown();
                 viewModel.Dispose();
                 await Program.Host.Services.GetRequiredService<GameSessionManager>().DisposeAsync();
                 await Program.Host.StopAsync();
@@ -109,6 +145,12 @@ public sealed class SidebarApplication : Avalonia.Application
                 desktop.Shutdown();
             }
             window.Closing += (_, e) =>
+            {
+                if (shutdownComplete) return;
+                e.Cancel = true;
+                window.Hide();
+            };
+            sidebar.Closing += (_, e) =>
             {
                 if (shutdownComplete) return;
                 e.Cancel = true;
@@ -120,8 +162,7 @@ public sealed class SidebarApplication : Avalonia.Application
                 e.Cancel = true;
                 shutdownTask ??= ShutdownAsync();
             };
-            desktop.MainWindow = window;
-            _ = viewModel.InitializeAsync();
+            desktop.MainWindow = sidebar;
         }
         base.OnFrameworkInitializationCompleted();
     }

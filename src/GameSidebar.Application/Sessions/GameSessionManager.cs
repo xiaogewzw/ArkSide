@@ -97,6 +97,7 @@ public sealed class GameSessionManager : IAsyncDisposable
         await _gate.WaitAsync(cancellationToken);
         try
         {
+            if (Current.State == GameSessionState.Binding) return;
             var error = ProfileRules.Validate(_rule) ?? ProfileRules.ValidateProfiles(_loadedProfiles);
             if (error is not null) Publish(Current with { State = GameSessionState.Faulted, Error = error });
             else if (!_rule.IsConfigured) Publish(Current with { State = GameSessionState.NotConfigured,
@@ -119,6 +120,17 @@ public sealed class GameSessionManager : IAsyncDisposable
                 SelectionKind = Current.Identity is null ? SelectionKind.None : Current.SelectionKind });
         }
         finally { _gate.Release(); }
+    }
+
+    /// <summary>Search immediately, without waiting for the tracker's next interval.</summary>
+    public async Task SearchNowAsync(CancellationToken cancellationToken = default)
+    {
+        await StartDiscoveryAsync(cancellationToken);
+        var before = Current;
+        if (!before.AutoDiscoveryEnabled || before.Identity is not null ||
+            before.State is GameSessionState.Faulted or GameSessionState.Binding) return;
+        var catalog = await _catalog.EnumerateAsync(cancellationToken);
+        await ApplyDiscoveryAsync(before.BindingGeneration, catalog, cancellationToken);
     }
 
     public async Task<WindowOperationError?> BindAsync(WindowCandidate candidate, BindingMode mode = BindingMode.Manual,
@@ -227,7 +239,7 @@ public sealed class GameSessionManager : IAsyncDisposable
                 await ApplyReadAsync(before.BindingGeneration, read, token);
                 return TimeSpan.FromMilliseconds(200);
             }
-            if (before.AutoDiscoveryEnabled && before.State != GameSessionState.Faulted)
+            if (before.AutoDiscoveryEnabled && before.State is not (GameSessionState.Faulted or GameSessionState.Binding))
             {
                 var catalog = await _catalog.EnumerateAsync(token);
                 await ApplyDiscoveryAsync(before.BindingGeneration, catalog, token);
@@ -252,7 +264,8 @@ public sealed class GameSessionManager : IAsyncDisposable
         await _gate.WaitAsync(token);
         try
         {
-            if (Current.BindingGeneration != generation || Current.Identity is not null || !Current.AutoDiscoveryEnabled) return;
+            if (Current.BindingGeneration != generation || Current.Identity is not null ||
+                Current.State == GameSessionState.Binding || !Current.AutoDiscoveryEnabled) return;
             if (catalog.Error is not null) { Publish(Current with { State = GameSessionState.Faulted, Error = catalog.Error }); return; }
             var match = WindowMatchService.Match(_rule, catalog.Candidates);
             if (match.Error is not null) { Publish(Current with { State = GameSessionState.Faulted, Error = match.Error }); return; }

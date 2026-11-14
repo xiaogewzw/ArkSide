@@ -30,13 +30,13 @@ jobs:
       - run: tools/package-macos.sh
       - name: Check and package Mac app
         run: |
-          test -x artifacts/GameSidebar-Dev.app/Contents/MacOS/GameSidebar.App
-          test -f artifacts/GameSidebar-Dev.app/Contents/MacOS/target-game.example.json
-          test -f artifacts/GameSidebar-Dev.app/Contents/MacOS/libGameSidebarMac.dylib
-          test -x artifacts/GameSidebar-Dev.app/Contents/Resources/recognition/worker/ArkSide.Recognition
-          test -f artifacts/GameSidebar-Dev.app/Contents/MacOS/recognition/data/干员详细信息.json
-          test -f artifacts/GameSidebar-Dev.app/Contents/MacOS/runtimes/osx-arm64/native/libMaaFramework.dylib
-          ditto -c -k --sequesterRsrc --keepParent artifacts/GameSidebar-Dev.app artifacts/GameSidebar-osx-arm64.zip
+          test -x artifacts/release/ArkSide.app/Contents/MacOS/ArkSide
+          test -f artifacts/release/ArkSide.app/Contents/Resources/ArkSide.icns
+          test -f artifacts/release/ArkSide.app/Contents/MacOS/libGameSidebarMac.dylib
+          test -x artifacts/release/ArkSide.app/Contents/Resources/recognition/worker/ArkSide.Recognition
+          test -f artifacts/release/ArkSide.app/Contents/MacOS/recognition/data/干员详细信息.json
+          test -f artifacts/release/ArkSide.app/Contents/MacOS/runtimes/osx-arm64/native/libMaaFramework.dylib
+          ditto -c -k --sequesterRsrc --keepParent artifacts/release/ArkSide.app artifacts/GameSidebar-osx-arm64.zip
       - uses: actions/upload-artifact@v4
         with:
           name: GameSidebar-osx-arm64
@@ -74,7 +74,7 @@ jobs:
         shell: pwsh
         run: |
           Copy-Item 'Windows-B2-测试清单.md' artifacts/GameSidebar-win-x64/Windows-B2-checklist.md
-          if (!(Test-Path artifacts/GameSidebar-win-x64/GameSidebar.App.exe)) { throw 'App exe missing' }
+          if (!(Test-Path artifacts/GameSidebar-win-x64/ArkSide.exe)) { throw 'App exe missing' }
           if (!(Test-Path artifacts/GameSidebar-win-x64/recognition/worker/ArkSide.Recognition.exe)) { throw 'Recognition worker missing' }
           if (!(Test-Path 'artifacts/GameSidebar-win-x64/recognition/data/干员详细信息.json')) { throw 'Operator data missing' }
           if (!(Test-Path artifacts/GameSidebar-win-x64/profiles/diagnostic-1920x1080.json)) { throw 'Diagnostic profile missing' }

@@ -3,15 +3,15 @@
     <OutputType>Exe</OutputType>
     <TargetFramework>net10.0</TargetFramework>
     <RestorePackagesWithLockFile>false</RestorePackagesWithLockFile>
-    <RecognitionAppDirectory Condition="'$(RecognitionAppDirectory)' == '' and $([MSBuild]::IsOSPlatform('OSX'))">$(MSBuildThisFileDirectory)../../artifacts/GameSidebar-Dev.app/Contents/MacOS</RecognitionAppDirectory>
-    <RecognitionAppDirectory Condition="'$(RecognitionAppDirectory)' == ''">$(MSBuildThisFileDirectory)../../artifacts/GameSidebar-win-x64</RecognitionAppDirectory>
+    <RecognitionAppDirectory Condition="'$(RecognitionAppDirectory)' == '' and $([MSBuild]::IsOSPlatform('OSX'))">$(MSBuildThisFileDirectory)../../artifacts/release/ArkSide.app/Contents/MacOS</RecognitionAppDirectory>
+    <RecognitionAppDirectory Condition="'$(RecognitionAppDirectory)' == ''">$(MSBuildThisFileDirectory)../../artifacts/release/windows/ArkSide</RecognitionAppDirectory>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="GameSidebar.App"><HintPath>$(RecognitionAppDirectory)/GameSidebar.App.dll</HintPath></Reference>
+    <Reference Include="ArkSide"><HintPath>$(RecognitionAppDirectory)/ArkSide.dll</HintPath></Reference>
     <Reference Include="GameSidebar.Application"><HintPath>$(RecognitionAppDirectory)/GameSidebar.Application.dll</HintPath></Reference>
     <Reference Include="Microsoft.Extensions.Logging.Abstractions"><HintPath>$(RecognitionAppDirectory)/Microsoft.Extensions.Logging.Abstractions.dll</HintPath></Reference>
   </ItemGroup>
   <Target Name="RequirePublishedApplication" BeforeTargets="ResolveReferences">
-    <Error Condition="!Exists('$(RecognitionAppDirectory)/GameSidebar.App.dll')" Text="请先构建发布包，或用 -p:RecognitionAppDirectory=主程序目录 指定待验证的发布包。" />
+    <Error Condition="!Exists('$(RecognitionAppDirectory)/ArkSide.dll')" Text="请先构建发布包，或用 -p:RecognitionAppDirectory=主程序目录 指定待验证的发布包。" />
   </Target>
 </Project>

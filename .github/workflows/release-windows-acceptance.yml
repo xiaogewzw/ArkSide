@@ -48,7 +48,7 @@ jobs:
           set -euo pipefail
           unzip -tq release/app/GameSidebar-win-x64.zip
           unzip -tq release/test-window/TestWindow-win-x64.zip
-          unzip -Z1 release/app/GameSidebar-win-x64.zip | grep -Fx 'GameSidebar.App.exe'
+          unzip -Z1 release/app/GameSidebar-win-x64.zip | grep -Fx -e 'GameSidebar.App.exe' -e 'ArkSide.exe'
           unzip -Z1 release/app/GameSidebar-win-x64.zip | grep -Fx 'profiles/diagnostic-1920x1080.json'
           unzip -Z1 release/app/GameSidebar-win-x64.zip | grep -Fx 'target-game.example.json'
           unzip -Z1 release/app/GameSidebar-win-x64.zip | grep -Fx 'runtimes/win-x64/native/MaaFramework.dll'

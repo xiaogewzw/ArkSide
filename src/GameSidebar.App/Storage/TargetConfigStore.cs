@@ -50,7 +50,12 @@ public sealed class TargetConfigStore
         {
             if (_explicitPath is not null)
                 return new(new(), path, path, null, new(WindowErrorCode.InvalidConfiguration, $"指定目标配置不存在：{path}"));
-            return new(legacy, "旧 settings.json target（文件名匹配）", null, null);
+            if (legacy.IsConfigured)
+                return new(legacy, "旧 settings.json target（文件名匹配）", null, null);
+            var defaultTarget = _mac
+                ? new TargetWindowRule(GameId: "arknights", DisplayName: "明日方舟", BundleId: "com.hypergryph.arknights")
+                : new TargetWindowRule(GameId: "arknights", DisplayName: "明日方舟", Exe: "Arknights.exe");
+            return new(defaultTarget, "内置明日方舟目标", null, null);
         }
         try
         {

@@ -58,9 +58,11 @@ public sealed class OfflineOperatorRecognizer(ILogger<OfflineOperatorRecognizer>
                 logger.LogWarning("Recognition exited with {ExitCode}: {Error}", process.ExitCode, error);
                 // The worker's normal validation errors are already phrased for the user.
                 var message = error.StartsWith("识别失败：", StringComparison.Ordinal)
-                    ? error[5..] : "离线识别组件运行失败，请查看日志并检查组件是否完整";
+                    ? error[5..].Split('\n')[0].Trim() : "离线识别组件运行失败，请查看日志并检查组件是否完整";
                 throw new InvalidOperationException(message.Length > 500 ? message[..500] : message);
             }
+            if (!string.IsNullOrWhiteSpace(error))
+                logger.LogInformation("Recognition diagnostics: {Diagnostics}", error);
             try { return ParseResult(output); }
             catch (Exception e) when (e is JsonException or KeyNotFoundException or InvalidOperationException or InvalidDataException or FormatException)
             {
@@ -92,7 +94,11 @@ public sealed class OfflineOperatorRecognizer(ILogger<OfflineOperatorRecognizer>
         if (OperatingSystem.IsMacOS() && !File.Exists(worker))
             worker = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "Resources",
                 "recognition", "worker", "ArkSide.Recognition"));
+#if ARKSIDE_PRODUCTION
+        string? python = null;
+#else
         var python = Environment.GetEnvironmentVariable("ARKSIDE_RECOGNITION_PYTHON");
+#endif
         var start = new ProcessStartInfo
         {
             UseShellExecute = false, CreateNoWindow = true,
@@ -106,7 +112,9 @@ public sealed class OfflineOperatorRecognizer(ILogger<OfflineOperatorRecognizer>
         }
         else
         {
+#if !ARKSIDE_PRODUCTION
             python = string.IsNullOrWhiteSpace(python) ? FindDevelopmentPython() : python;
+#endif
             if (python is null || !Path.IsPathFullyQualified(python) || !File.Exists(python))
                 throw new InvalidOperationException("未找到离线识别组件，请使用包含识别组件的完整程序包");
             start.FileName = python;

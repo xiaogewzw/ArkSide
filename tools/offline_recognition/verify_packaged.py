@@ -10,7 +10,8 @@ import sys
 
 import cv2
 
-from .domain import DEFAULT_DATA, ROOT, write_json
+from .domain import DEFAULT_DATA, ROOT, load_data, write_json
+from .tests.real_capture_cases import real_capture_cases
 from .vision import read_image, save_image
 
 
@@ -29,7 +30,8 @@ def main():
     fixtures = DEFAULT_DATA / "识别测试"
     cases = []
     for name, filename, expected_name in (("original", "测试截图.png", "识别结果.json"),
-                                           ("user", "游戏内截图-02.png", "识别结果-02.json")):
+                                           ("user", "游戏内截图-02.png", "识别结果-02.json"),
+                                           ("in-game-map", "游戏内截图-03.png", "识别结果-03.json")):
         image = read_image(fixtures / filename)
         expected = json.loads((fixtures / expected_name).read_text(encoding="utf-8"))
         cases.append((name, image, expected))
@@ -41,6 +43,8 @@ def main():
             cases.append(("user-client-1097", crop, expected))
             compressed = cv2.imdecode(cv2.imencode(".jpg", scaled, [cv2.IMWRITE_JPEG_QUALITY, 80])[1], cv2.IMREAD_COLOR)
             cases.append(("user-jpeg-1097", compressed, expected))
+    options, operators = load_data(recognition_dir / "data")
+    cases.extend(real_capture_cases(operators, options))
     records = []
     for name, image, expected in cases:
         case_dir = output_dir / name
@@ -76,7 +80,7 @@ def main():
               "executed_at_utc": datetime.now(timezone.utc).isoformat(),
               "worker_sha256": hashlib.sha256(worker.read_bytes()).hexdigest(),
               "process_invocation": "production worker, working directory and argument list",
-              "source_version": "text_anchored_hsv_v2"}
+              "source_version": "ocr_row_grid_v1 + text_anchored_hsv_v2"}
     write_json(output_dir / "verification.json", report)
     return 0 if report["passed"] else 1
 
