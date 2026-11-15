@@ -1,67 +1,90 @@
-# GameSidebar · B2 双平台侧边栏与截图
+# ArkSide
 
-GameSidebar 是面向 Windows x64 和 Apple Silicon Mac 的窗口绑定与截图诊断程序。本轮实现了外部目标配置、真实窗口绑定、右侧侧边栏、单帧 PNG 和 1–5 FPS 预览。真实鼠标/键盘操作、OCR、长图和游戏业务识别属于后续批次。
+ArkSide 是明日方舟的桌面侧栏助手：连接游戏窗口，在盟约确认页面截图并离线识别禁用盟约，结合干员数据展示推荐，支持标签、副盟约和 Rank 筛选。
 
-## 运行
+识别在本机完成，发布包自带 .NET、Python 运行时和 OCR 模型，无需额外安装这些依赖。游戏需要自行启动。
 
-Windows 测试者可从 [B2 测试版发布页](https://github.com/xiaogewzw/ArkSide/releases/tag/b2-windows-acceptance-2026-09-30) 下载主程序和 TestWindow ZIP，按 [Windows B2 轻量测试清单](Windows-B2-测试清单.md) 验收。测试清单也附在主程序 ZIP 内；无需安装 SDK。Windows 包由 GitHub Windows runner 编译，截图与预览需真机另行确认。
+![ArkSide Windows 使用效果：连接明日方舟并显示干员推荐](assets/screenshots/arkside-windows.png)
 
-使用 .NET SDK 10.0.401：
+## 下载
 
-```sh
-dotnet restore GameSidebar.sln --locked-mode
-dotnet build GameSidebar.sln -c Release --no-restore
-dotnet test GameSidebar.sln -c Release --no-build --no-restore
-```
+到 [GitHub Releases](https://github.com/xiaogewzw/ArkSide/releases) 下载对应平台的应用 ZIP。支持 Windows x64 和 macOS Apple Silicon（M 系列）。Windows 需要安装 VC++ x64 运行库。macOS 目前仅在 27 上通过真机测试，其他系统版本兼容性待确认。
 
-- Windows：运行发布 ZIP 内的 `GameSidebar.App.exe`。Maa Win32 Controller 使用 FramePool / PrintWindow 候选截取目标窗口；`--demo` 显式运行模拟窗口与模拟帧。
-- macOS：运行 `tools/package-macos.sh` 生成 `artifacts/GameSidebar-Dev.app`，再用 `ditto artifacts/GameSidebar-Dev.app ~/Applications/GameSidebar-Dev.app` 安装到固定开发位置并从 Finder 启动。开发 Bundle ID 固定为 `dev.arkside.GameSidebar`。首次截图请在系统设置的“隐私与安全性 → 录屏与系统录音”允许此 App，必要时重新启动。应用选择、窗口枚举、位置由原生桥接提供；截图先用 Maa ScreenCaptureKit Controller，失败时尝试 ScreenCaptureKit 桥接，再使用系统窗口截图工具。侧边栏状态显示实际方法。
-- Demo：`dotnet run --project src/GameSidebar.App -- --demo`，只用于 UI 和会话逻辑；不会自动代替真实窗口模式。
+`v1.0.0` 为本次准备发布的首个正式版本。
 
-Windows 包与 Mac `.app` 都附 `target-game.example.json`，没有默认的活动 `target-game.json`。两平台游戏先由用户正常启动；可直接在候选窗口列表手动绑定。
+| 平台 | v1.0.0 应用附件 |
+| --- | --- |
+| Windows x64 | `ArkSide-v1.0.0-Windows-x64.zip` |
+| macOS Apple Silicon | `ArkSide-v1.0.0-macOS-arm64.zip` |
 
-## 目标配置
 
-活动文件默认与 Windows exe 或 Mac `.app` 同级。开发目录或只读目录可用 `--target-config /绝对路径/target-game.json` 指定。UI 显示实际来源，可“重新加载”；编辑后“保存目标”写回当前外部文件，失败时可“另存目标配置”。另存到非默认位置后，下次启动需显式传 `--target-config`。
+## 启动和识别
+
+1. Windows：完整解压，进入 `ArkSide` 文件夹，双击 `ArkSide.exe`。保留同目录下的所有文件。
+2. macOS：解压后将 `ArkSide.app` 移到“应用程序”，双击启动。首次截图时，在“系统设置 → 隐私与安全性 → 录屏与系统录音”中允许 ArkSide，然后重启助手。
+3. 启动明日方舟。助手默认按 Windows 的 `Arknights.exe` 或 macOS 的 `com.hypergryph.arknights` 查找游戏，找到后吸附到游戏窗口右侧。需要时点击“重新连接”。
+4. 游戏进入所有盟约都显示完整的页面，点击“开始识别”。完成后按标签、副盟约、Rank 和显示排数查看推荐。
+5. 游戏内更换盟约后，再次点击“开始识别”。识别期间和识别失败后会保留上次成功结果；只有识别成功才整体替换，点击“清空数据”可主动清除。
+
+## 自定义干员标签与适用副盟约
+
+修改 `干员详细信息.json`，可以自定义推荐标签，以及干员在不同标签下显示的适用副盟约。正式应用首次运行时，会将默认的两份干员 JSON 复制到以下用户数据目录：
+
+- Windows：`%LocalAppData%\ArkSide\recognition\data\干员详细信息.json`，可将目录粘贴到资源管理器地址栏打开。
+- macOS：`~/Library/Application Support/ArkSide/recognition/data/干员详细信息.json`，可在 Finder 中按 `⌘⇧G`，粘贴目录并前往。
+
+同目录还有 `干员禁用规则.json`，识别组件和推荐列表共用这两份配置。头像和 OCR 模型仍由应用包提供。自定义标签只需修改上面的 `干员详细信息.json`，无需重新打包或签名。
+
+在原文件对应位置修改，并保留其他干员与字段。以下以纯烬艾雅法拉为例：
 
 ```json
 {
-  "schemaVersion": 1,
-  "gameId": null,
-  "displayName": null,
-  "windows": {
-    "executablePath": "D:\\Games\\ExampleGame\\Game.exe",
-    "titleRule": null,
-    "classRule": null,
-    "preferredProfileId": "diagnostic-1920x1080"
-  },
-  "macOS": {
-    "appBundlePath": null,
-    "bundleId": null,
-    "titleRule": null,
-    "preferredProfileId": null
-  }
+  "allowedTags": ["输出核心", "叠层核心"],
+  "operators": [
+    {
+      "id": "098",
+      "name": "纯烬艾雅法拉",
+      "tag": ["叠层核心"],
+      "tagCovenants": {
+        "叠层核心": ["聚合"]
+      },
+      "portrait": "头像_纯烬艾雅法拉.png",
+      "mainCovenant": ["莱塔尼亚"],
+      "viceCovenant": ["聚合", "远见"],
+      "rank": 5
+    }
+  ]
 }
 ```
 
-Windows 要填写拥有游戏窗口的 exe **完整路径**；从运行窗口回填可避免误填启动器。明日方舟运行在模拟器中时，应选择实际承载游戏画面的模拟器窗口，从所选窗口回填路径后保存，再开始自动搜索。多个匹配窗口可手动选择，必要时增加标题规则。完整路径不可读时不按同名文件回退。macOS 可选择 `.app` 或从运行窗口回填 Bundle ID 和路径；应用移动后仍可按 Bundle ID 搜索运行中的窗口。
+| 字段 | 自定义规则 |
+| --- | --- |
+| `allowedTags` | 位于文件最外层，与 `operators` 同级，是所有干员共用的标签白名单。新增标签时先在这里登记，再加入相应干员的 `tag`。 |
+| `tag` | 每个干员的标签字符串数组，可以填写多个标签，如 `["输出核心", "叠层核心"]`，该干员会进入对应的多个推荐分组。未列入 `allowedTags` 的标签会被忽略；`[]` 表示不进入任何标签推荐组。 |
+| `tagCovenants` | 字段名末尾有 `s`，内容是“标签名 → 副盟约字符串数组”的对象，用于控制该标签下卡片显示的副盟约。键使用该干员 `tag` 中的标签名，数组中的盟约必须属于该干员的 `viceCovenant`，否则读取失败。单独填写映射不会为干员增加标签。 |
 
-加载优先级是显式路径、同级 `target-game.json`、旧应用数据目录内 `settings.json` 的 target。前两项存在但损坏时会报错，不静默使用旧目标。外部文件当前平台字段为空时显示未配置。`settings.json` 仍保存旧目标兼容信息和其他设置；日志位置不变。个人活动配置已加入 `.gitignore`。
+示例中，纯烬艾雅法拉属于“叠层核心”组，头像卡片下只显示“聚合”。仍然可以通过副盟约“远见”筛选出她，因为筛选始终匹配完整的 `viceCovenant`；推荐还会受本次禁用结果和 Rank 筛选约束。
 
-## 侧边栏与诊断
+- 某个标签没有对应的 `tagCovenants` 配置时，显示完整的 `viceCovenant`；省略整个字段或写成 `{}` 都使用此默认规则。
+- 明确写成 `"叠层核心": []` 时，该标签下显示“无适用副盟约”，干员仍属于这个标签组。
+- 标签去除首尾空白并去重，区分大小写；数组中不能有空字符串。`allowedTags` 缺失或为空时，不显示标签推荐。
 
-绑定真实窗口后，侧边栏在目标右侧出现。可收起至 48 DIP、展开至 360 DIP、截图、选择路径保存 PNG、开始或停止低帧率预览。最小化、解绑或目标丢失时隐藏/暂停。截图结果带会话代次与几何版本，换绑后的旧帧被丢弃。Profile 不匹配仍可预览窗口，布局分析和输入尚未开放。
+使用 UTF-8 保存为合法 JSON，之后点击“开始识别”，应用会重新读取配置并生成推荐。修改前请备份；现有用户 JSON 在重启和升级时均会保留，格式错误会提示“干员详细资料异常”，不会自动覆盖你的文件。
 
-macOS 窗口位置以 desktop point 记录，Retina 截图以 PNG 像素报告；Client 映射未知时界面明确标记未知。Windows 保留原有 Client 物理像素与 DPI 诊断。
+需要恢复随应用提供的默认数据时，退出助手，将用户数据目录中对应的 JSON 备份并移走，下次启动会自动补齐缺失的文件。升级带来新版默认数据时，也可用此方法恢复，再重新应用自定义标签。已有包内修改可在首次运行前将两份 JSON 复制到上述用户目录。
 
-## 当前验证状态（2026-09-30）
+从源码制作默认数据时，修改仓库中的 `干员数据/干员详细信息.json` 后重新构建；新的默认文件不会覆盖已经存在的用户配置。开发模式（未设置 `ArkSideProduction=true`）仍读取构建输出目录中的数据。
 
-- Mac 本机构建、固定目录安装和 Finder 启动：已验证，构建/安装二进制哈希一致。
-- 授权后的 Maa ScreenCaptureKit 已实际截取 Finder（1651×720）和明日方舟（1097×720），从应用保存 PNG 并检查完整画面。Finder 预览约 4 分钟，游戏预览约 3 分钟；停止、目标最小化/恢复、关闭/重新绑定、游戏退出和预览运行时程序退出均已实测。最终应用选择器修复版已再次授权，实际取得 Finder/游戏 PNG，Finder 和游戏预览复验均超过两分钟，停止与采集期间退出通过。本机详细证据记录含个人环境信息，留在本地。
-- Windows x64：已交叉发布并检查 exe、空模板及 Maa Native 资产；Windows 真机 W1–W3 待验证。
-- 自动测试：33 通过、1 个 Windows 原生 API 用例在 Mac 上跳过、0 失败；Release 构建 0 警告、0 错误。包含配置优先级、同名 exe 防误绑、旧帧丢弃、Native 在途停止/释放及停止期间重启保护。
-- 远程 CI：每次推送由 [Build and test](https://github.com/xiaogewzw/ArkSide/actions/workflows/build.yml) 在 Mac/Windows 构建、自动测试并打包；发布工作流只接受成功构建中的 Windows ZIP，并校验 Native 资产、附测试清单和 SHA256。实际运行结果以对应提交的 Actions 记录为准。Windows 真机截图/预览仍待 [本轮清单](Windows-B2-测试清单.md) 验收；交叉构建和 ZIP 检查只代表产物检查。
+## 常见问题
 
-开发包采用 ad-hoc 签名；重建可能使录屏授权失效。若开关显示开启但应用仍报告权限缺失，请先退出程序，在系统录屏列表移除旧条目，再用“+”明确添加固定安装位置的 `GameSidebar-Dev.app`，由用户亲自完成认证并退出重启，以实际目标帧确认授权成功。本轮曾通过此流程恢复真实截图；不要仅按开关状态判定。
+- **没有找到游戏**：先启动游戏，再点击“重新连接”。
+- **没有截图权限**：在 macOS 系统设置中授权录屏，之后重启助手。
+- **截图异常**：将游戏恢复为可见窗口，确认目标进程正确后重试。
+- **请将游戏画面调整到所有盟约都显示出来**：当前画面不完整或无法可靠识别，返回完整盟约页面后重试。
+- **干员详细资料异常**：检查上面用户数据目录中的两份 JSON 是否符合格式；需要恢复默认时，先备份并移走出错文件，再启动助手。缺少头像或模型时，重新完整解压应用。
 
-如已授权却仍无法截取目标，请复制诊断 JSON，并记录侧边栏显示的实际方法、错误和窗口 ID。当前版本不保证全屏、跨 Spaces、Stage Manager、混合 DPI 或长时运行的兼容性。
+反馈问题请到 [Issues](https://github.com/xiaogewzw/ArkSide/issues)，提供应用版本、系统版本、游戏运行方式、复现步骤，以及对应时间的日志片段。包内 `release.json` 记录版本和源码提交，Mac 位于 `ArkSide.app/Contents/Resources/release.json`，Windows 位于 `ArkSide/release.json`。分享截图和日志前，请去除账号及个人路径信息。
+
+## 文档和资源来源
+
+ArkSide 图标和干员 JSON 由项目作者制作，干员头像取自 [PRTS Wiki](https://prts.wiki/)。相关游戏素材的权利归各自权利人。

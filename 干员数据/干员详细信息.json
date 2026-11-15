@@ -1,0 +1,1942 @@
+{
+    "allowedTags": ["输出核心", "叠层核心"],
+    "operators":[
+        {
+            "id": "001",
+            "name": "阿米娅",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_阿米娅.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "奇迹"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "002",
+            "name": "折桠",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_折桠.png",
+            "mainCovenant": [
+                "乌萨斯"
+            ],
+            "viceCovenant": [
+                "不屈"
+            ],
+            "rank": 1
+        },
+        {
+            "id": "003",
+            "name": "艾丝黛尔",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_艾丝黛尔.png",
+            "mainCovenant": [
+                "萨尔贡"
+            ],
+            "viceCovenant": [
+                "独行"
+            ],
+            "rank": 1
+        },
+        {
+            "id": "004",
+            "name": "幽灵鲨",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_幽灵鲨.png",
+            "mainCovenant": [
+                "阿戈尔"
+            ],
+            "viceCovenant": [],
+            "rank": 1
+        },
+        {
+            "id": "005",
+            "name": "野鬃",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_野鬃.png",
+            "mainCovenant": [
+                "卡西米尔"
+            ],
+            "viceCovenant": [
+                "助力"
+            ],
+            "rank": 1
+        },
+        {
+            "id": "006",
+            "name": "慕斯",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_慕斯.png",
+            "mainCovenant": [
+                "维多利亚"
+            ],
+            "viceCovenant": [],
+            "rank": 1
+        },
+        {
+            "id": "007",
+            "name": "角峰",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_角峰.png",
+            "mainCovenant": [
+                "谢拉格"
+            ],
+            "viceCovenant": [
+                "坚守"
+            ],
+            "rank": 1
+        },
+        {
+            "id": "008",
+            "name": "灰喉",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_灰喉.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "精准"
+            ],
+            "rank": 1
+        },
+        {
+            "id": "009",
+            "name": "深靛",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_深靛.png",
+            "mainCovenant": [
+                "伊比利亚"
+            ],
+            "viceCovenant": [],
+            "rank": 1
+        },
+        {
+            "id": "010",
+            "name": "卡达",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_卡达.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "奥术"
+            ],
+            "rank": 1
+        },
+        {
+            "id": "011",
+            "name": "摆渡人",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_摆渡人.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "坚守",
+                "不屈"
+            ],
+            "rank": 1
+        },
+        {
+            "id": "012",
+            "name": "夏栎",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_夏栎.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "助力"
+            ],
+            "rank": 1
+        },
+        {
+            "id": "013",
+            "name": "杰克",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_杰克.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "突袭"
+            ],
+            "rank": 1
+        },
+        {
+            "id": "014",
+            "name": "霜叶",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_霜叶.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "灵巧"
+            ],
+            "rank": 1
+        },
+        {
+            "id": "015",
+            "name": "拜松",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_拜松.png",
+            "mainCovenant": [
+                "炎"
+            ],
+            "viceCovenant": [],
+            "rank": 1
+        },
+        {
+            "id": "016",
+            "name": "褐果",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_褐果.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "聚合"
+            ],
+            "rank": 1
+        },
+        {
+            "id": "017",
+            "name": "烈夏",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_烈夏.png",
+            "mainCovenant": [
+                "乌萨斯"
+            ],
+            "viceCovenant": [],
+            "rank": 1
+        },
+        {
+            "id": "018",
+            "name": "陨星",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_陨星.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "迅捷"
+            ],
+            "rank": 1
+        },
+        {
+            "id": "019",
+            "name": "拉普兰德",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_拉普兰德.png",
+            "mainCovenant": [
+                "叙拉古"
+            ],
+            "viceCovenant": [],
+            "rank": 1
+        },
+        {
+            "id": "020",
+            "name": "地灵",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_地灵.png",
+            "mainCovenant": [
+                "莱塔尼亚"
+            ],
+            "viceCovenant": [
+                "独行"
+            ],
+            "rank": 1
+        },
+        {
+            "id": "021",
+            "name": "折光",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_折光.png",
+            "mainCovenant": [
+                "莱塔尼亚"
+            ],
+            "viceCovenant": [],
+            "rank": 2
+        },
+        {
+            "id": "022",
+            "name": "蓝毒",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_蓝毒.png",
+            "mainCovenant": [
+                "伊比利亚"
+            ],
+            "viceCovenant": [],
+            "rank": 2
+        },
+        {
+            "id": "023",
+            "name": "泡泡",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_泡泡.png",
+            "mainCovenant": [
+                "萨尔贡"
+            ],
+            "viceCovenant": [
+                "坚守"
+            ],
+            "rank": 2
+        },
+        {
+            "id": "024",
+            "name": "莎草",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_莎草.png",
+            "mainCovenant": [
+                "萨尔贡"
+            ],
+            "viceCovenant": [
+                "聚合"
+            ],
+            "rank": 2
+        },
+        {
+            "id": "025",
+            "name": "雪猎",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_雪猎.png",
+            "mainCovenant": [
+                "谢拉格"
+            ],
+            "viceCovenant": [
+                "精准"
+            ],
+            "rank": 2
+        },
+        {
+            "id": "026",
+            "name": "砾",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_砾.png",
+            "mainCovenant": [
+                "卡西米尔"
+            ],
+            "viceCovenant": [
+                "不屈"
+            ],
+            "rank": 2
+        },
+        {
+            "id": "027",
+            "name": "复奏",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_复奏.png",
+            "mainCovenant": [
+                "莱塔尼亚",
+                "叙拉古"
+            ],
+            "viceCovenant": [
+                "奇迹"
+            ],
+            "rank": 2
+        },
+        {
+            "id": "028",
+            "name": "奥斯塔",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_奥斯塔.png",
+            "mainCovenant": [
+                "叙拉古"
+            ],
+            "viceCovenant": [],
+            "rank": 2
+        },
+        {
+            "id": "029",
+            "name": "Miss.Christine",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_Miss.Christine.png",
+            "mainCovenant": [
+                "维多利亚"
+            ],
+            "viceCovenant": [
+                "奥术"
+            ],
+            "rank": 2
+        },
+        {
+            "id": "030",
+            "name": "哈洛德",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_哈洛德.png",
+            "mainCovenant": [
+                "维多利亚",
+                "谢拉格"
+            ],
+            "viceCovenant": [],
+            "rank": 2
+        },
+        {
+            "id": "031",
+            "name": "云迹",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_云迹.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "灵巧",
+                "奇迹"
+            ],
+            "rank": 2
+        },
+        {
+            "id": "032",
+            "name": "蛇屠箱",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_蛇屠箱.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "坚守"
+            ],
+            "rank": 2
+        },
+        {
+            "id": "033",
+            "name": "波登可",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_波登可.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "聚合",
+                "迅捷"
+            ],
+            "rank": 2
+        },
+        {
+            "id": "034",
+            "name": "承曦格雷伊",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_承曦格雷伊.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "精准",
+                "灵巧"
+            ],
+            "rank": 2
+        },
+        {
+            "id": "035",
+            "name": "锡人",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_锡人.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "投资人"
+            ],
+            "rank": 2
+        },
+        {
+            "id": "036",
+            "name": "宴",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_宴.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "不屈"
+            ],
+            "rank": 2
+        },
+        {
+            "id": "037",
+            "name": "渡桥",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_渡桥.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "远见"
+            ],
+            "rank": 2
+        },
+        {
+            "id": "038",
+            "name": "矩",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_矩.png",
+            "mainCovenant": [
+                "炎"
+            ],
+            "viceCovenant": [],
+            "rank": 2
+        },
+        {
+            "id": "039",
+            "name": "星极",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_星极.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "奇迹"
+            ],
+            "rank": 2
+        },
+        {
+            "id": "040",
+            "name": "瑰盐",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_瑰盐.png",
+            "mainCovenant": [
+                "伊比利亚"
+            ],
+            "viceCovenant": [
+                "聚合"
+            ],
+            "rank": 2
+        },
+        {
+            "id": "041",
+            "name": "真理",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_真理.png",
+            "mainCovenant": [
+                "乌萨斯"
+            ],
+            "viceCovenant": [],
+            "rank": 2
+        },
+        {
+            "id": "042",
+            "name": "铸铁",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_铸铁.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "突袭"
+            ],
+            "rank": 2
+        },
+        {
+            "id": "043",
+            "name": "星源",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_星源.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "助力"
+            ],
+            "rank": 2
+        },
+        {
+            "id": "044",
+            "name": "安哲拉",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_安哲拉.png",
+            "mainCovenant": [
+                "阿戈尔"
+            ],
+            "viceCovenant": [
+                "助力"
+            ],
+            "rank": 2
+        },
+        {
+            "id": "045",
+            "name": "车尔尼",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_车尔尼.png",
+            "mainCovenant": [
+                "莱塔尼亚"
+            ],
+            "viceCovenant": [
+                "坚守"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "046",
+            "name": "卡涅利安",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_卡涅利安.png",
+            "mainCovenant": [
+                "莱塔尼亚",
+                "萨尔贡"
+            ],
+            "viceCovenant": [
+                "迅捷"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "047",
+            "name": "乌啾",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_乌啾.png",
+            "mainCovenant": [
+                "乌萨斯"
+            ],
+            "viceCovenant": [
+                "聚合"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "048",
+            "name": "海沫",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_海沫.png",
+            "mainCovenant": [
+                "伊比利亚"
+            ],
+            "viceCovenant": [
+                "不屈"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "049",
+            "name": "旅骨",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_旅骨.png",
+            "mainCovenant": [
+                "伊比利亚"
+            ],
+            "viceCovenant": [
+                "精准"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "050",
+            "name": "风絮",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_风絮.png",
+            "mainCovenant": [
+                "炎"
+            ],
+            "viceCovenant": [
+                "聚合"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "051",
+            "name": "极光",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_极光.png",
+            "mainCovenant": [
+                "谢拉格"
+            ],
+            "viceCovenant": [],
+            "rank": 3
+        },
+        {
+            "id": "052",
+            "name": "耶拉",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_耶拉.png",
+            "mainCovenant": [
+                "谢拉格"
+            ],
+            "viceCovenant": [
+                "奇迹"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "053",
+            "name": "初雪",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_初雪.png",
+            "mainCovenant": [
+                "谢拉格"
+            ],
+            "viceCovenant": [
+                "协防干员"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "054",
+            "name": "深巡",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_深巡.png",
+            "mainCovenant": [
+                "阿戈尔"
+            ],
+            "viceCovenant": [
+                "坚守"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "055",
+            "name": "斯卡蒂",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_斯卡蒂.png",
+            "mainCovenant": [
+                "阿戈尔"
+            ],
+            "viceCovenant": [
+                "突袭"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "056",
+            "name": "瑕光",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_瑕光.png",
+            "mainCovenant": [
+                "卡西米尔"
+            ],
+            "viceCovenant": [
+                "突袭"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "057",
+            "name": "忍冬",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_忍冬.png",
+            "mainCovenant": [
+                "叙拉古"
+            ],
+            "viceCovenant": [
+                "迅捷"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "058",
+            "name": "伺夜",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_伺夜.png",
+            "mainCovenant": [
+                "叙拉古"
+            ],
+            "viceCovenant": [
+                "精准"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "059",
+            "name": "水灯心",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_水灯心.png",
+            "mainCovenant": [
+                "维多利亚"
+            ],
+            "viceCovenant": [
+                "独行",
+                "灵巧"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "060",
+            "name": "空弦",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_空弦.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "精准",
+                "远见"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "061",
+            "name": "吉星",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_吉星.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "奇迹"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "062",
+            "name": "伊桑",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_伊桑.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "奥术",
+                "突袭"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "063",
+            "name": "罗比菈塔",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_罗比菈塔.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "坚守",
+                "助力"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "064",
+            "name": "乌有",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_乌有.png",
+            "mainCovenant": [
+                "炎"
+            ],
+            "viceCovenant": [],
+            "rank": 3
+        },
+        {
+            "id": "065",
+            "name": "历阵锐枪芬",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_历阵锐枪芬.png",
+            "mainCovenant": [
+                "卡西米尔"
+            ],
+            "viceCovenant": [
+                "远见"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "066",
+            "name": "凯瑟琳",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_凯瑟琳.png",
+            "mainCovenant": [
+                "维多利亚"
+            ],
+            "viceCovenant": [
+                "远见"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "067",
+            "name": "风丸",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_风丸.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "不屈"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "068",
+            "name": "至简",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_至简.png",
+            "mainCovenant": [
+                "萨尔贡"
+            ],
+            "viceCovenant": [],
+            "rank": 3
+        },
+        {
+            "id": "069",
+            "name": "奥尔佳",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_奥尔佳.png",
+            "mainCovenant": [
+                "乌萨斯"
+            ],
+            "viceCovenant": [
+                "灵巧"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "070",
+            "name": "青枳",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_青枳.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "坚守",
+                "迅捷"
+            ],
+            "rank": 3
+        },
+        {
+            "id": "071",
+            "name": "黑键",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_黑键.png",
+            "mainCovenant": [
+                "莱塔尼亚"
+            ],
+            "viceCovenant": [
+                "精准"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "072",
+            "name": "艾雅法拉",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_艾雅法拉.png",
+            "mainCovenant": [
+                "莱塔尼亚"
+            ],
+            "viceCovenant": [
+                "奥术"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "073",
+            "name": "赫拉格",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_赫拉格.png",
+            "mainCovenant": [
+                "乌萨斯"
+            ],
+            "viceCovenant": [
+                "突袭"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "074",
+            "name": "维伊",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_维伊.png",
+            "mainCovenant": [
+                "乌萨斯"
+            ],
+            "viceCovenant": [
+                "奥术"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "075",
+            "name": "温蒂",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_温蒂.png",
+            "mainCovenant": [
+                "伊比利亚"
+            ],
+            "viceCovenant": [
+                "坚守"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "076",
+            "name": "流明",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_流明.png",
+            "mainCovenant": [
+                "伊比利亚"
+            ],
+            "viceCovenant": [
+                "聚合"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "077",
+            "name": "余",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_余.png",
+            "mainCovenant": [
+                "炎"
+            ],
+            "viceCovenant": [
+                "坚守"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "078",
+            "name": "森蚺",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_森蚺.png",
+            "mainCovenant": [
+                "萨尔贡"
+            ],
+            "viceCovenant": [
+                "不屈"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "079",
+            "name": "灵知",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_灵知.png",
+            "mainCovenant": [
+                "谢拉格"
+            ],
+            "viceCovenant": [
+                "迅捷"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "080",
+            "name": "归溟幽灵鲨",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_归溟幽灵鲨.png",
+            "mainCovenant": [
+                "阿戈尔"
+            ],
+            "viceCovenant": [
+                "不屈"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "081",
+            "name": "水月",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_水月.png",
+            "mainCovenant": [
+                "阿戈尔"
+            ],
+            "viceCovenant": [
+                "灵巧"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "082",
+            "name": "远牙",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_远牙.png",
+            "mainCovenant": [
+                "卡西米尔"
+            ],
+            "viceCovenant": [
+                "精准"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "083",
+            "name": "玛恩纳",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_玛恩纳.png",
+            "mainCovenant": [
+                "卡西米尔"
+            ],
+            "viceCovenant": [],
+            "rank": 4
+        },
+        {
+            "id": "084",
+            "name": "涤火杰西卡",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_涤火杰西卡.png",
+            "mainCovenant": [
+                "维多利亚"
+            ],
+            "viceCovenant": [
+                "坚守"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "085",
+            "name": "白铁",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_白铁.png",
+            "mainCovenant": [
+                "维多利亚"
+            ],
+            "viceCovenant": [
+                "助力"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "086",
+            "name": "斥罪",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_斥罪.png",
+            "mainCovenant": [
+                "叙拉古"
+            ],
+            "viceCovenant": [
+                "不屈"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "087",
+            "name": "W",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_W.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "迅捷"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "088",
+            "name": "霍尔海雅",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_霍尔海雅.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "奥术",
+                "精准"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "089",
+            "name": "山",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_山.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "投资人"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "090",
+            "name": "淬羽赫默",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_淬羽赫默.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "助力"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "091",
+            "name": "赫德雷",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_赫德雷.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "突袭"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "092",
+            "name": "夜莺",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_夜莺.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "聚合",
+                "协防干员"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "093",
+            "name": "仇白",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_仇白.png",
+            "mainCovenant": [
+                "炎"
+            ],
+            "viceCovenant": [
+                "灵巧"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "094",
+            "name": "异客",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_异客.png",
+            "mainCovenant": [
+                "萨尔贡"
+            ],
+            "viceCovenant": [
+                "奥术"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "095",
+            "name": "安洁莉娜",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_安洁莉娜.png",
+            "mainCovenant": [
+                "叙拉古"
+            ],
+            "viceCovenant": [
+                "奇迹"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "096",
+            "name": "华法琳",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_华法琳.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "灵巧",
+                "聚合"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "097",
+            "name": "寒檀",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_寒檀.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "远见"
+            ],
+            "rank": 4
+        },
+        {
+            "id": "098",
+            "name": "纯烬艾雅法拉",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {
+                "叠层核心":["聚合"]
+            },
+            "portrait": "头像_纯烬艾雅法拉.png",
+            "mainCovenant": [
+                "莱塔尼亚"
+            ],
+            "viceCovenant": [
+                "聚合",
+                "远见"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "099",
+            "name": "怒潮凛冬",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_怒潮凛冬.png",
+            "mainCovenant": [
+                "乌萨斯"
+            ],
+            "viceCovenant": [
+                "奇迹"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "100",
+            "name": "艾丽妮",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_艾丽妮.png",
+            "mainCovenant": [
+                "伊比利亚"
+            ],
+            "viceCovenant": [],
+            "rank": 5
+        },
+        {
+            "id": "101",
+            "name": "棘刺",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_棘刺.png",
+            "mainCovenant": [
+                "伊比利亚"
+            ],
+            "viceCovenant": [
+                "奥术"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "102",
+            "name": "黍",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_黍.png",
+            "mainCovenant": [
+                "炎"
+            ],
+            "viceCovenant": [
+                "远见"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "103",
+            "name": "佩佩",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_佩佩.png",
+            "mainCovenant": [
+                "萨尔贡"
+            ],
+            "viceCovenant": [
+                "灵巧"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "104",
+            "name": "圣聆初雪",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_圣聆初雪.png",
+            "mainCovenant": [
+                "谢拉格"
+            ],
+            "viceCovenant": [
+                "奥术"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "105",
+            "name": "凛御银灰",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_凛御银灰.png",
+            "mainCovenant": [
+                "谢拉格"
+            ],
+            "viceCovenant": [
+                "灵巧",
+                "投资人"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "106",
+            "name": "歌蕾蒂娅",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_歌蕾蒂娅.png",
+            "mainCovenant": [
+                "阿戈尔"
+            ],
+            "viceCovenant": [],
+            "rank": 5
+        },
+        {
+            "id": "107",
+            "name": "乌尔比安",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_乌尔比安.png",
+            "mainCovenant": [
+                "阿戈尔"
+            ],
+            "viceCovenant": [],
+            "rank": 5
+        },
+        {
+            "id": "108",
+            "name": "薇薇安娜",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_薇薇安娜.png",
+            "mainCovenant": [
+                "莱塔尼亚",
+                "卡西米尔"
+            ],
+            "viceCovenant": [
+                "奥术"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "109",
+            "name": "铃兰",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_铃兰.png",
+            "mainCovenant": [
+                "叙拉古"
+            ],
+            "viceCovenant": [],
+            "rank": 5
+        },
+        {
+            "id": "110",
+            "name": "贝洛内",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_贝洛内.png",
+            "mainCovenant": [
+                "叙拉古"
+            ],
+            "viceCovenant": [
+                "突袭"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "111",
+            "name": "维娜·维多利亚",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_维娜·维多利亚.png",
+            "mainCovenant": [
+                "维多利亚"
+            ],
+            "viceCovenant": [
+                "奇迹"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "112",
+            "name": "迷迭香",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_迷迭香.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "精准",
+                "助力"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "113",
+            "name": "隐德来希",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_隐德来希.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "灵巧",
+                "不屈"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "114",
+            "name": "塞雷娅",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_塞雷娅.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "坚守",
+                "协防干员"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "115",
+            "name": "溯光星源",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_溯光星源.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "奥术"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "116",
+            "name": "老鲤",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_老鲤.png",
+            "mainCovenant": [
+                "炎"
+            ],
+            "viceCovenant": [
+                "投资人"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "117",
+            "name": "Mon3tr",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_Mon3tr.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "协防干员"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "118",
+            "name": "可露希尔",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_可露希尔.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "投资人"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "119",
+            "name": "鸿雪",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_鸿雪.png",
+            "mainCovenant": [
+                "萨尔贡"
+            ],
+            "viceCovenant": [
+                "精准"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "120",
+            "name": "焰尾",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_焰尾.png",
+            "mainCovenant": [
+                "卡西米尔"
+            ],
+            "viceCovenant": [
+                "迅捷"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "121",
+            "name": "冻河",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_冻河.png",
+            "mainCovenant": [
+                "乌萨斯"
+            ],
+            "viceCovenant": [
+                "迅捷"
+            ],
+            "rank": 5
+        },
+        {
+            "id": "122",
+            "name": "引星棘刺",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_引星棘刺.png",
+            "mainCovenant": [
+                "伊比利亚"
+            ],
+            "viceCovenant": [
+                "迅捷"
+            ],
+            "rank": 6
+        },
+        {
+            "id": "123",
+            "name": "烛煌",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_烛煌.png",
+            "mainCovenant": [
+                "炎",
+                "维多利亚"
+            ],
+            "viceCovenant": [
+                "迅捷"
+            ],
+            "rank": 6
+        },
+        {
+            "id": "124",
+            "name": "浊心斯卡蒂",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_浊心斯卡蒂.png",
+            "mainCovenant": [
+                "阿戈尔"
+            ],
+            "viceCovenant": [
+                "聚合"
+            ],
+            "rank": 6
+        },
+        {
+            "id": "125",
+            "name": "克莱门莎",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_克莱门莎.png",
+            "mainCovenant": [
+                "阿戈尔"
+            ],
+            "viceCovenant": [],
+            "rank": 6
+        },
+        {
+            "id": "126",
+            "name": "耀骑士临光",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_耀骑士临光.png",
+            "mainCovenant": [
+                "卡西米尔"
+            ],
+            "viceCovenant": [
+                "突袭"
+            ],
+            "rank": 6
+        },
+        {
+            "id": "127",
+            "name": "荒芜拉普兰德",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_荒芜拉普兰德.png",
+            "mainCovenant": [
+                "叙拉古"
+            ],
+            "viceCovenant": [],
+            "rank": 6
+        },
+        {
+            "id": "128",
+            "name": "酒神",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_酒神.png",
+            "mainCovenant": [
+                "维多利亚"
+            ],
+            "viceCovenant": [],
+            "rank": 6
+        },
+        {
+            "id": "129",
+            "name": "逻各斯",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_逻各斯.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "奥术",
+                "远见"
+            ],
+            "rank": 6
+        },
+        {
+            "id": "130",
+            "name": "真言",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_真言.png",
+            "mainCovenant": [
+                "萨尔贡"
+            ],
+            "viceCovenant": [],
+            "rank": 6
+        },
+        {
+            "id": "131",
+            "name": "妮芙",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {
+                "叠层核心": ["迅捷"]
+            },
+            "portrait": "头像_妮芙.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "迅捷",
+                "远见"
+            ],
+            "rank": 6
+        },
+        {
+            "id": "132",
+            "name": "遥",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_遥.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "聚合",
+                "奇迹"
+            ],
+            "rank": 6
+        },
+        {
+            "id": "133",
+            "name": "魔王",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_魔王.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "调和"
+            ],
+            "rank": 6
+        },
+        {
+            "id": "134",
+            "name": "史尔特尔",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_史尔特尔.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "突袭",
+                "不屈"
+            ],
+            "rank": 6
+        },
+        {
+            "id": "135",
+            "name": "锏",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_锏.png",
+            "mainCovenant": [
+                "卡西米尔",
+                "谢拉格",
+                "莱塔尼亚"
+            ],
+            "viceCovenant": [],
+            "rank": 6
+        },
+        {
+            "id": "136",
+            "name": "机械师",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_机械师.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "协防干员",
+                "坚守"
+            ],
+            "rank": 6
+        },
+        {
+            "id": "137",
+            "name": "塔露拉",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_塔露拉.png",
+            "mainCovenant": [
+                "乌萨斯"
+            ],
+            "viceCovenant": [
+                "奥术",
+                "协防干员"
+            ],
+            "rank": 6
+        },
+        {
+            "id": "138",
+            "name": "夕",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_夕.png",
+            "mainCovenant": [
+                "炎"
+            ],
+            "viceCovenant": [
+                "奥术"
+            ],
+            "rank": 6
+        },
+        {
+            "id": "139",
+            "name": "蕾缪安",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_蕾缪安.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "精准"
+            ],
+            "rank": 6
+        },
+        {
+            "id": "140",
+            "name": "缪尔赛思",
+            "tag": [],
+            "tagCovenants": {},
+            "portrait": "头像_缪尔赛思.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "协防干员"
+            ],
+            "rank": 6
+        },
+        {
+            "id": "141",
+            "name": "帕拉斯",
+            "tag": [
+                "叠层核心"
+            ],
+            "tagCovenants": {},
+            "portrait": "头像_帕拉斯.png",
+            "mainCovenant": [],
+            "viceCovenant": [
+                "灵巧",
+                "助力"
+            ],
+            "rank": 6
+        }
+    ]
+}

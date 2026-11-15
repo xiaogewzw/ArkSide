@@ -69,7 +69,9 @@ public sealed class MacWindowService : IWindowCatalog, IWindowGeometryProvider
         cancellationToken.ThrowIfCancellationRequested();
         var result = ReadWindows().Select(w => new WindowCandidate(new($"mac:{w.Id}"), w.Pid,
             w.Owner, w.Title, "", StartedAt(w.Pid), w.Visible, w.Minimized,
-            false, false, false, w.Self, null,
+            // iOS-on-Mac games also expose tiny layer-zero overlays (e.g. 66×20).
+            // They are not game surfaces and must not make automatic selection ambiguous.
+            w.Width < 100 || w.Height < 100, false, false, w.Self, null,
             BundleId: EmptyToNull(w.BundleId), AppBundlePath: EmptyToNull(w.BundlePath), Platform: "macOS")).ToArray();
         return new WindowCatalogResult(result);
     }, cancellationToken);

@@ -1,0 +1,75 @@
+{
+  "passed": true,
+  "cases": [
+    {
+      "case": "original",
+      "passed": true,
+      "exit_code": 0,
+      "image_size": [
+        2486,
+        1708
+      ],
+      "error": ""
+    },
+    {
+      "case": "original-1097",
+      "passed": true,
+      "exit_code": 0,
+      "image_size": [
+        1097,
+        754
+      ],
+      "error": ""
+    },
+    {
+      "case": "user",
+      "passed": true,
+      "exit_code": 0,
+      "image_size": [
+        2354,
+        1576
+      ],
+      "error": ""
+    },
+    {
+      "case": "user-1097",
+      "passed": true,
+      "exit_code": 0,
+      "image_size": [
+        1097,
+        734
+      ],
+      "error": ""
+    },
+    {
+      "case": "user-client-1097",
+      "passed": true,
+      "exit_code": 0,
+      "image_size": [
+        1097,
+        690
+      ],
+      "error": ""
+    },
+    {
+      "case": "user-jpeg-1097",
+      "passed": true,
+      "exit_code": 0,
+      "image_size": [
+        1097,
+        734
+      ],
+      "error": ""
+    },
+    {
+      "case": "invalid-input",
+      "passed": true,
+      "exit_code": 2,
+      "error": "识别失败：盟约面板识别不完整，缺少：不屈、乌萨斯、伊比利亚、助力、协防干员、卡西米尔、叙拉古、坚守、奇迹、奥术、投资人、灵巧、炎、独行、突袭、精准、绝技、维多利亚、聚合、莱塔尼亚、萨尔贡、调和、谢拉格、迅捷、远见、阿戈尔"
+    }
+  ],
+  "executed_at_utc": "2026-11-11T13:09:59.950807+00:00",
+  "worker_sha256": "cf2be09a50b2f137d85d017c5172c632cdb334b2c4e0f05fa058768587cca1d9",
+  "process_invocation": "production worker, working directory and argument list",
+  "source_version": "text_anchored_hsv_v2"
+}

@@ -1,0 +1,86 @@
+name: Draft ArkSide release
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Existing version tag, for example v1.0.0
+        required: true
+        type: string
+permissions:
+  contents: read
+concurrency:
+  group: release-${{ inputs.tag || github.ref_name }}
+  cancel-in-progress: false
+jobs:
+  validate:
+    runs-on: ubuntu-24.04
+    outputs:
+      source_sha: ${{ steps.source.outputs.sha }}
+      tag: ${{ steps.source.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ inputs.tag || github.ref }}
+      - name: Validate version tag and source commit
+        id: source
+        env:
+          RELEASE_TAG: ${{ inputs.tag || github.ref_name }}
+        run: |
+          python3 tools/release_metadata.py check-tag "$RELEASE_TAG"
+          test "$(git rev-parse HEAD)" = "$(git rev-parse "refs/tags/$RELEASE_TAG^{commit}")"
+          git merge-base --is-ancestor HEAD origin/main
+          echo "sha=$(git rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+          echo "tag=$RELEASE_TAG" >> "$GITHUB_OUTPUT"
+  package:
+    needs: validate
+    uses: ./.github/workflows/package-production.yml
+    with:
+      source_ref: ${{ needs.validate.outputs.source_sha }}
+  draft:
+    needs: [validate, package]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      RELEASE_TAG: ${{ needs.validate.outputs.tag }}
+      SOURCE_SHA: ${{ needs.validate.outputs.source_sha }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ needs.validate.outputs.source_sha }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: ArkSide-macOS-arm64
+          path: artifacts/release-download
+      - uses: actions/download-artifact@v4
+        with:
+          name: ArkSide-Windows-x64
+          path: artifacts/release-download
+      - name: Verify both products and prepare release notes
+        run: |
+          python3 tools/release_metadata.py checksums artifacts/release-download
+          cd artifacts/release-download
+          sha256sum --check SHA256SUMS.txt
+          unzip -tq "ArkSide-$RELEASE_TAG-macOS-arm64.zip"
+          unzip -tq "ArkSide-$RELEASE_TAG-Windows-x64.zip"
+          cd ../..
+          cp release-notes.md artifacts/release-download/RELEASE_NOTES.md
+          printf '\n源码提交：`%s`\n\n构建记录：https://github.com/%s/actions/runs/%s\n' "$SOURCE_SHA" "$GH_REPO" "$GITHUB_RUN_ID" >> artifacts/release-download/RELEASE_NOTES.md
+      - name: Create draft for manual review and publication
+        run: |
+          prerelease=()
+          if [[ "$RELEASE_TAG" == *-* ]]; then prerelease=(--prerelease); fi
+          gh release create "$RELEASE_TAG" \
+            "artifacts/release-download/ArkSide-$RELEASE_TAG-macOS-arm64.zip" \
+            "artifacts/release-download/ArkSide-$RELEASE_TAG-Windows-x64.zip" \
+            artifacts/release-download/SHA256SUMS.txt \
+            artifacts/release-download/macOS-arm64-release.json \
+            artifacts/release-download/Windows-x64-release.json \
+            --verify-tag --target "$SOURCE_SHA" --draft "${prerelease[@]}" \
+            --title "ArkSide $RELEASE_TAG" \
+            --notes-file artifacts/release-download/RELEASE_NOTES.md

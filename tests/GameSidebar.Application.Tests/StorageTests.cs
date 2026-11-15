@@ -6,6 +6,21 @@ namespace GameSidebar.Application.Tests;
 
 public sealed class StorageTests
 {
+    [Fact] public async Task Fresh_install_uses_builtin_arknights_identity()
+    {
+        var directory = TemporaryDirectory();
+        try
+        {
+            var mac = await new TargetConfigStore([], directory, mac: true).LoadAsync(new());
+            Assert.Equal("com.hypergryph.arknights", mac.Rule.BundleId);
+            Assert.True(mac.Rule.IsConfigured);
+            Assert.Null(mac.Error);
+            Assert.Equal("内置明日方舟目标", mac.Source);
+            var windows = await new TargetConfigStore([], directory, mac: false).LoadAsync(new());
+            Assert.Equal("Arknights.exe", windows.Rule.Exe);
+        }
+        finally { Directory.Delete(directory, true); }
+    }
     [Fact] public async Task Settings_round_trip_only_target_preferences()
     {
         var directory = TemporaryDirectory();

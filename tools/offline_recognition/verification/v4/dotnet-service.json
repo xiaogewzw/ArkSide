@@ -1,0 +1,54 @@
+{
+  "passed": true,
+  "bridge": "Published OfflineOperatorRecognizer + bundled worker",
+  "cases": [
+    {
+      "image": "input.png",
+      "passed": true,
+      "total": 141,
+      "disabled": 58,
+      "available": 83,
+      "case": "xnip"
+    },
+    {
+      "image": "input.png",
+      "passed": true,
+      "total": 141,
+      "disabled": 58,
+      "available": 83,
+      "case": "xnip-window-1097"
+    },
+    {
+      "image": "input.png",
+      "passed": true,
+      "total": 141,
+      "disabled": 58,
+      "available": 83,
+      "case": "windows-134711"
+    },
+    {
+      "image": "input.png",
+      "passed": true,
+      "total": 141,
+      "disabled": 58,
+      "available": 83,
+      "case": "windows-134711-window-1097"
+    },
+    {
+      "image": "input.png",
+      "passed": true,
+      "total": 141,
+      "disabled": 58,
+      "available": 83,
+      "case": "windows-232436"
+    },
+    {
+      "image": "input.png",
+      "passed": true,
+      "total": 141,
+      "disabled": 58,
+      "available": 83,
+      "case": "windows-232436-window-1097"
+    }
+  ]
+}

@@ -1,4 +1,3 @@
-using Avalonia.Media.Imaging;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -6,7 +5,6 @@ using GameSidebar.Application.Capture;
 using GameSidebar.Application.Sessions;
 using GameSidebar.Core.Sessions;
 using GameSidebar.Platform.MacOS;
-using System.Runtime.InteropServices;
 
 namespace GameSidebar.App.ViewModels;
 
@@ -14,146 +12,147 @@ public sealed class SidebarViewModel : ObservableObject, IDisposable
 {
     private readonly CaptureCoordinator _capture;
     private readonly GameSessionManager _sessions;
-    private Bitmap? _image;
-    private byte[]? _png;
-    private string _status = "绑定窗口后可截图";
+    public OperatorImportViewModel Recommendations { get; }
     private bool _collapsed;
-    private int _fps = 2;
-    private long _lastSequence;
-    private CaptureOutcome? _pendingOutcome;
-    private int _dispatchQueued;
     private bool _disposed;
-    private long _displayGeneration = -1;
-    public SidebarViewModel(CaptureCoordinator capture, GameSessionManager sessions)
+    private IReadOnlyList<string> _disabledOperators = [];
+    private string _recognitionSummary = "打开游戏的盟约确认页面，点击“开始识别”。";
+    private bool _isRecognizing;
+    private bool _needsCapturePermission;
+    private string _connectionStatus = "未找到明日方舟";
+    private bool _isConnected;
+    private bool _canSearch = true;
+    public SidebarViewModel(CaptureCoordinator capture, GameSessionManager sessions, OperatorImportViewModel recommendations)
     {
-        _capture = capture; _sessions = sessions;
-        _capture.Updated += OnCapture;
+        _capture = capture; _sessions = sessions; Recommendations = recommendations;
+        Recommendations.PropertyChanged += OnRecommendationsChanged;
+        Recommendations.ReloadCatalog();
         _sessions.Updated += OnSession;
-        ScreenshotCommand = new AsyncRelayCommand(ScreenshotAsync);
-        StartPreviewCommand = new RelayCommand(StartPreview);
-        StopPreviewCommand = new AsyncRelayCommand(StopPreviewAsync);
         ToggleCommand = new RelayCommand(() => Collapsed = !Collapsed);
         RequestPermissionCommand = new RelayCommand(RequestPermission);
+        RecognizeOperatorsCommand = new AsyncRelayCommand(RecognizeOperatorsAsync,
+            () => !_disposed && _sessions.Current.CanPreview);
+        CancelRecognitionCommand = new RelayCommand(() => { RecognizeOperatorsCommand.Cancel(); Recommendations.Cancel(); });
+        ClearRecognitionCommand = new RelayCommand(() =>
+        {
+            RecognizeOperatorsCommand.Cancel();
+            Recommendations.Clear();
+        });
     }
-    public Bitmap? Image { get => _image; private set => SetProperty(ref _image, value); }
-    public string Status { get => _status; private set => SetProperty(ref _status, value); }
+    public string ConnectionStatus { get => _connectionStatus; private set => SetProperty(ref _connectionStatus, value); }
+    public bool IsConnected { get => _isConnected; private set => SetProperty(ref _isConnected, value); }
+    public string RecognitionButtonText => IsRecognizing ? "识别中…" : "开始识别";
+    public bool CanSearch { get => _canSearch; private set => SetProperty(ref _canSearch, value); }
     public bool Collapsed { get => _collapsed; set => SetProperty(ref _collapsed, value); }
-    public int Fps { get => _fps; set => SetProperty(ref _fps, Math.Clamp(value, 1, 5)); }
     public bool IsMac => OperatingSystem.IsMacOS();
-    public IAsyncRelayCommand ScreenshotCommand { get; }
-    public IRelayCommand StartPreviewCommand { get; }
-    public IAsyncRelayCommand StopPreviewCommand { get; }
+    public bool NeedsCapturePermission { get => _needsCapturePermission; private set => SetProperty(ref _needsCapturePermission, value); }
+    public IReadOnlyList<string> DisabledOperators
+    {
+        get => _disabledOperators;
+        private set
+        {
+            if (SetProperty(ref _disabledOperators, value)) OnPropertyChanged(nameof(DisabledOperatorTitle));
+        }
+    }
+    public string DisabledOperatorTitle => $"禁用干员（{DisabledOperators.Count}）";
+    public string CovenantSummary => Recommendations.Result is { } result
+        ? $"禁用主盟约：{string.Join("、", result.DisabledMainCovenants.DefaultIfEmpty("无"))}\n禁用副盟约：{string.Join("、", result.DisabledViceCovenants.DefaultIfEmpty("无"))}"
+        : "识别后显示禁用盟约与名单。";
+    public string RecognitionSummary { get => _recognitionSummary; private set => SetProperty(ref _recognitionSummary, value); }
+    public bool IsRecognizing
+    {
+        get => _isRecognizing;
+        private set
+        {
+            if (SetProperty(ref _isRecognizing, value)) OnPropertyChanged(nameof(RecognitionButtonText));
+        }
+    }
     public IRelayCommand ToggleCommand { get; }
     public IRelayCommand RequestPermissionCommand { get; }
+    public IAsyncRelayCommand RecognizeOperatorsCommand { get; }
+    public IRelayCommand CancelRecognitionCommand { get; }
+    public IRelayCommand ClearRecognitionCommand { get; }
 
-    private async Task ScreenshotAsync()
-    {
-        try { Apply(await _capture.CaptureOnceAsync()); }
-        catch (Exception e) { Status = e.Message; }
-    }
-    private void StartPreview()
-    {
-        _capture.StartPreview(Fps);
-        Status = $"预览运行中 · {Fps} FPS";
-    }
-    private async Task StopPreviewAsync()
-    {
-        await _capture.StopPreviewAsync();
-        Status = "预览已停止";
-    }
-    private void OnCapture(CaptureOutcome outcome)
+    private void OnRecommendationsChanged(object? sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
         if (_disposed) return;
-        Interlocked.Exchange(ref _pendingOutcome, outcome);
-        if (Interlocked.Exchange(ref _dispatchQueued, 1) == 0)
-            Dispatcher.UIThread.Post(DrainLatest);
+        DisabledOperators = Recommendations.Result?.DisabledOperators ?? [];
+        NeedsCapturePermission = Recommendations.Failure == OperatorFailure.CapturePermission;
+        OnPropertyChanged(nameof(CovenantSummary));
+        RecognitionSummary = Recommendations.IsBusy ? "正在识别，请稍候…" :
+            Recommendations.Status.Replace("识别干员推荐", "开始识别");
     }
-    private void DrainLatest()
+
+    private async Task RecognizeOperatorsAsync(CancellationToken token)
     {
-        var latest = Interlocked.Exchange(ref _pendingOutcome, null);
-        if (latest is not null) Apply(latest);
-        Interlocked.Exchange(ref _dispatchQueued, 0);
-        if (_pendingOutcome is not null && Interlocked.Exchange(ref _dispatchQueued, 1) == 0)
-            Dispatcher.UIThread.Post(DrainLatest);
+        if (_disposed || !_sessions.Current.CanPreview) return;
+        var context = _sessions.Current;
+        IsRecognizing = true;
+        try
+        {
+            await Recommendations.ImportAsync("游戏画面", async captureToken =>
+            {
+                CaptureOutcome capture;
+                try { capture = await _capture.CaptureOnceAsync(captureToken); }
+                catch (OperationCanceledException) when (captureToken.IsCancellationRequested) { throw; }
+                catch (UnauthorizedAccessException) { throw; }
+                catch (Exception e) { throw new GameCaptureException(WindowErrorCode.CaptureFailed, e.Message); }
+                captureToken.ThrowIfCancellationRequested();
+                if (!IsCaptureCurrent(context))
+                    throw new GameCaptureException(WindowErrorCode.Cancelled, "游戏窗口已变化");
+                if (capture.Error is { } error) throw new GameCaptureException(error.Code, error.Message);
+                var frame = capture.Frame ?? throw new GameCaptureException(WindowErrorCode.CaptureFailed, "未获取到游戏截图");
+                if (frame.SessionId != context.SessionId || frame.BindingGeneration != context.BindingGeneration ||
+                    frame.GeometryVersion != context.GeometryVersion)
+                    throw new GameCaptureException(WindowErrorCode.Cancelled, "游戏窗口已变化");
+                return frame.Png;
+            }, token, () => IsCaptureCurrent(context), "正在截取当前游戏画面…");
+        }
+        finally { if (!_disposed) IsRecognizing = false; }
     }
-    private void Apply(CaptureOutcome outcome)
+
+    private bool IsCaptureCurrent(GameSessionSnapshot context)
     {
-        if (_disposed) return;
-        if (outcome.Error is not null) { Status = outcome.Error.Message; return; }
-        var frame = outcome.Frame!;
         var current = _sessions.Current;
-        if (!current.CanPreview || current.SessionId != frame.SessionId ||
-            current.BindingGeneration != frame.BindingGeneration || current.GeometryVersion != frame.GeometryVersion ||
-            frame.Sequence <= _lastSequence) return;
-        _lastSequence = frame.Sequence;
-        _png = frame.Png;
-        using var stream = new MemoryStream(frame.Png, writable: false);
-        var bitmap = new Bitmap(stream);
-        var previous = Image;
-        Image = bitmap;
-        previous?.Dispose();
-        Status = $"{frame.Method} · {frame.Width}×{frame.Height} · #{frame.Sequence} · " +
-            $"{frame.CapturedAt.ToLocalTime():HH:mm:ss.fff} · {frame.Duration.TotalMilliseconds:F0} ms · " +
-            PointerText(frame);
+        return !_disposed && current.CanPreview &&
+            current.SessionId == context.SessionId && current.BindingGeneration == context.BindingGeneration &&
+            current.GeometryVersion == context.GeometryVersion;
     }
-    private string PointerText(GameFrame frame)
+
+    public async Task StopRecognitionAsync()
     {
-        var geometry = _sessions.Current.Geometry;
-        if (geometry is null) return "鼠标映射未知";
-        if (OperatingSystem.IsMacOS())
-        {
-            var (x, y) = MacWindowService.MousePosition();
-            var bounds = geometry.Placement?.Frame;
-            var inside = bounds is not null && x >= bounds.X && x < bounds.X + bounds.Width &&
-                y >= bounds.Y && y < bounds.Y + bounds.Height;
-            return $"鼠标桌面 ({x:F0},{y:F0}) point · {(inside ? "窗口外框内" : "窗口外框外")} · 帧内映射未知";
-        }
-        if (OperatingSystem.IsWindows() && GetCursorPos(out var point))
-        {
-            var client = geometry.ClientBoundsScreenPx;
-            var inside = point.X >= client.Left && point.X < client.Right &&
-                point.Y >= client.Top && point.Y < client.Bottom;
-            if (inside && frame.Width == geometry.ClientSizePx.Width && frame.Height == geometry.ClientSizePx.Height)
-                return $"鼠标帧内 ({point.X - client.Left},{point.Y - client.Top}) px";
-            return $"鼠标桌面 ({point.X},{point.Y}) px · 帧内映射未知";
-        }
-        return "鼠标映射未知";
+        RecognizeOperatorsCommand.Cancel();
+        Recommendations.Cancel();
+        if (RecognizeOperatorsCommand.ExecutionTask is { } task) await task;
+        await Recommendations.StopAsync();
     }
-    [StructLayout(LayoutKind.Sequential)] private struct Point { public int X, Y; }
-    [DllImport("user32.dll")] [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool GetCursorPos(out Point point);
+
     private void OnSession(GameSessionSnapshot snapshot) => Dispatcher.UIThread.Post(() =>
     {
         if (_disposed) return;
-        if (_displayGeneration != snapshot.BindingGeneration || snapshot.SessionId is null || !snapshot.CanPreview)
-        {
-            _displayGeneration = snapshot.BindingGeneration;
-            _png = null;
-            var previous = Image; Image = null; previous?.Dispose();
-            if (snapshot.IsMinimized) Status = "目标最小化，截图已暂停";
-            else if (snapshot.SessionId is null) Status = "目标已解绑，等待重新绑定";
-            else Status = "目标已变更，请重新截图";
-        }
+        RecognizeOperatorsCommand.NotifyCanExecuteChanged();
+        CanSearch = snapshot.Identity is null && snapshot.State is not (GameSessionState.Starting or GameSessionState.Binding);
+        IsConnected = snapshot.Identity?.Verification == IdentityVerification.Verified &&
+            snapshot.State is not (GameSessionState.GameLost or GameSessionState.Faulted or GameSessionState.Unbound);
+        ConnectionStatus = IsConnected ? "已连接明日方舟" : "未找到明日方舟";
     });
-    public async Task SavePngAsync(string path)
-    {
-        if (_png is null) { Status = "请先截图"; return; }
-        await File.WriteAllBytesAsync(path, _png);
-        Status = $"已保存 PNG：{path}";
-    }
     private void RequestPermission()
     {
         if (!IsMac) return;
-        Status = MacWindowService.ScreenPermission(true) ? "屏幕录制权限已允许，可重试截图" :
-            "请在系统设置 → 隐私与安全性 → 屏幕录制中允许 GameSidebar，然后重试";
+        try
+        {
+            NeedsCapturePermission = !MacWindowService.ScreenPermission(true);
+            RecognitionSummary = NeedsCapturePermission ? "没有截图权限" : "已允许截图，请重新识别。";
+        }
+        catch (Exception) { RecognitionSummary = "截图异常"; }
     }
     public void Dispose()
     {
         if (_disposed) return;
         _disposed = true;
-        Interlocked.Exchange(ref _pendingOutcome, null);
-        _capture.Updated -= OnCapture;
+        RecognizeOperatorsCommand.Cancel();
         _sessions.Updated -= OnSession;
-        _image?.Dispose();
+        Recommendations.PropertyChanged -= OnRecommendationsChanged;
+        Recommendations.Dispose();
     }
 }

@@ -33,6 +33,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private string _classRule = "";
     private string _preferredProfileId = "diagnostic-1920x1080";
     private DemoScenario _selectedScenario = DemoScenario.SingleWindow;
+    private Task? _initialization;
 
     public MainViewModel(GameSessionManager manager, SettingsStore settings, TargetConfigStore targetConfig,
         FakeWindowService? fake, bool demo)
@@ -47,6 +48,12 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         StartDiscoveryCommand = new AsyncRelayCommand(StartDiscoveryAsync);
         StopDiscoveryCommand = new AsyncRelayCommand(StopDiscoveryAsync);
         SaveSettingsCommand = new AsyncRelayCommand(SaveSettingsAsync);
+        RememberCandidateCommand = new AsyncRelayCommand(async () =>
+        {
+            if (SelectedCandidate is null) { Notice = "请先选择游戏窗口"; return; }
+            FillFromCandidate();
+            await SaveSettingsAsync();
+        });
         ReloadTargetCommand = new AsyncRelayCommand(ReloadTargetAsync);
         FillFromCandidateCommand = new RelayCommand(FillFromCandidate);
         SelectProfileCommand = new AsyncRelayCommand(SelectProfileAsync);
@@ -79,6 +86,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     public IAsyncRelayCommand StartDiscoveryCommand { get; }
     public IAsyncRelayCommand StopDiscoveryCommand { get; }
     public IAsyncRelayCommand SaveSettingsCommand { get; }
+    public IAsyncRelayCommand RememberCandidateCommand { get; }
     public IAsyncRelayCommand ReloadTargetCommand { get; }
     public IRelayCommand FillFromCandidateCommand { get; }
     public IAsyncRelayCommand SelectProfileCommand { get; }
@@ -90,7 +98,8 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         target = new { executablePath = Exe, bundleId = BundleId, appBundlePath = AppBundlePath },
         settings = new { _currentSettings.SchemaVersion } }, JsonStorage.Options);
 
-    public async Task InitializeAsync()
+    public Task InitializeAsync() => _initialization ??= InitializeOnceAsync();
+    private async Task InitializeOnceAsync()
     {
         try { await InitializeCoreAsync(); }
         catch (Exception e) { Notice = $"初始化失败：{e.Message}"; StatusText = "Faulted · 初始化失败，请检查设置和日志"; }
@@ -100,10 +109,31 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         _currentSettings = await _settings.LoadAsync();
         if (_settings.RecoveryNotice is not null) Notice = _settings.RecoveryNotice;
         _targetLoad = await _targetConfig.LoadAsync(_currentSettings.EffectiveTarget);
+        if (IsDemo) _targetLoad = new(new(Exe: "GameSidebar.TestWindow.exe"), "Demo 模拟目标", null, null);
         ApplyLoadedTarget();
         await _manager.InitializeAsync(_targetLoad.Rule);
         if (_targetLoad.Error is not null) await _manager.ReportConfigErrorAsync(_targetLoad.Error);
         await RefreshAsync();
+    }
+    public async Task SearchAgainAsync()
+    {
+        await InitializeAsync();
+        await RunBusyAsync(async () =>
+        {
+            try
+            {
+                // Reload the external rule so correcting a configuration also makes retry useful.
+                _targetLoad = IsDemo ? _targetLoad : await _targetConfig.LoadAsync(_currentSettings.EffectiveTarget);
+                ApplyLoadedTarget();
+                await _manager.SetRuleAsync(_targetLoad.Rule);
+                if (_targetLoad.Error is not null) await _manager.ReportConfigErrorAsync(_targetLoad.Error);
+                else await _manager.SearchNowAsync();
+            }
+            catch (Exception e)
+            {
+                await _manager.ReportConfigErrorAsync(new(WindowErrorCode.ApiFailure, e.Message));
+            }
+        });
     }
     private void ApplyLoadedTarget()
     {
@@ -129,7 +159,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     {
         var result = await _manager.GetCandidatesAsync();
         Candidates.Clear();
-        foreach (var candidate in result.Candidates.Where(x => IsMac ? x.IsSelectable : _currentSettings.ShowExcludedWindows || x.IsSelectable))
+        foreach (var candidate in result.Candidates.Where(x => x.IsSelectable))
             Candidates.Add(candidate);
         Notice = result.Error?.Message ?? $"找到 {Candidates.Count} 个窗口；选中后可手动绑定。";
     });
@@ -185,7 +215,7 @@ public sealed class MainViewModel : ObservableObject, IDisposable
         ApplyLoadedTarget();
         await _manager.SetRuleAsync(target);
         if (target.IsConfigured) await _manager.StartDiscoveryAsync();
-        Notice = $"目标已保存到 {ConfigSource}";
+        Notice = "已保存游戏设置，正在连接。";
     }
     private Task ReloadTargetAsync() => RunBusyAsync(async () =>
     {
@@ -233,10 +263,16 @@ public sealed class MainViewModel : ObservableObject, IDisposable
     private void OnUpdated(GameSessionSnapshot snapshot) => Dispatcher.UIThread.Post(() => Display(snapshot));
     private void Display(GameSessionSnapshot s)
     {
-        StatusText = $"{s.State} / {s.SelectionKind} · 自动搜索 {(s.AutoDiscoveryEnabled ? "开" : "关")} · " +
-            $"窗口绑定有效 {(s.Identity?.Verification == IdentityVerification.Verified ? "是" : "否")} · " +
-            $"允许预览 {(s.CanPreview ? "是" : "否")} · " +
-            $"尺寸匹配 {(s.ProfileValidation?.Kind == ProfileValidationKind.Matched ? "是" : "否")} · 目标游戏未验证";
+        StatusText = s.State switch
+        {
+            GameSessionState.Starting or GameSessionState.Binding or GameSessionState.Validating => "正在连接游戏…",
+            GameSessionState.Faulted => "连接异常，请重新选择游戏窗口。",
+            GameSessionState.NeedsSelection => "请选择游戏窗口。",
+            _ when s.Identity is not null && s.IsMinimized => "已连接游戏，窗口已最小化。",
+            _ when s.CanPreview => "已连接游戏。",
+            _ when s.Identity is not null => "已连接游戏，暂时无法截图。",
+            _ => "未找到游戏，请打开明日方舟后重新搜索。"
+        };
         var g = s.Geometry;
         var platformGeometry = IsMac ? "Win32 窗口/Client/DWM/DPI：不适用；Mac Client 映射未知\n" :
             $"WindowBoundsPx: {g?.WindowBoundsPx}\nVisibleFrameBoundsPx: {g?.VisibleFrameBoundsPx} ({g?.VisibleFrameSource})\n" +

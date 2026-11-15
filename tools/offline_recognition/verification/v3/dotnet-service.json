@@ -1,0 +1,20 @@
+{
+  "passed": true,
+  "bridge": "Published OfflineOperatorRecognizer + bundled worker",
+  "cases": [
+    {
+      "image": "游戏内截图-03.png",
+      "passed": true,
+      "total": 141,
+      "disabled": 57,
+      "available": 84
+    },
+    {
+      "image": "游戏截图.png",
+      "passed": true,
+      "total": 141,
+      "disabled": 57,
+      "available": 84
+    }
+  ]
+}

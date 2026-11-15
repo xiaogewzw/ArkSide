@@ -9,3 +9,6 @@ target-game.json
 TestResults/
 /docs/
 /B2-验收记录.md
+.venv-recognition/
+__pycache__/
+*.pyc
