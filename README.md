@@ -8,9 +8,9 @@ ArkSide 是明日方舟的桌面侧栏助手：连接游戏窗口，在盟约确
 
 ## 下载
 
-到 [GitHub Releases](https://github.com/xiaogewzw/ArkSide/releases) 下载对应平台的应用 ZIP。支持 Windows x64 和 macOS Apple Silicon（M 系列）。Windows 需要安装 VC++ x64 运行库。macOS 目前仅在 27 上通过真机测试，其他系统版本兼容性待确认。
+到 [GitHub Releases](https://github.com/xiaogewzw/ArkSide/releases) 下载对应平台的应用 ZIP。支持 Windows x64 和 macOS Apple Silicon（M 系列）。Windows 需要安装 VC++ x64 运行库。macOS 包内原生组件最低要求为 macOS 15，目前仅在 macOS 27 上通过真机测试，其他系统版本兼容性待确认。
 
-`v1.0.0` 为本次准备发布的首个正式版本。
+`v1.0.0` 为首个正式版本。
 
 | 平台 | v1.0.0 应用附件 |
 | --- | --- |
@@ -25,6 +25,8 @@ ArkSide 是明日方舟的桌面侧栏助手：连接游戏窗口，在盟约确
 3. 启动明日方舟。助手默认按 Windows 的 `Arknights.exe` 或 macOS 的 `com.hypergryph.arknights` 查找游戏，找到后吸附到游戏窗口右侧。需要时点击“重新连接”。
 4. 游戏进入所有盟约都显示完整的页面，点击“开始识别”。完成后按标签、副盟约、Rank 和显示排数查看推荐。
 5. 游戏内更换盟约后，再次点击“开始识别”。识别期间和识别失败后会保留上次成功结果；只有识别成功才整体替换，点击“清空数据”可主动清除。
+
+**macOS 首次打开被拦截时**：当前应用尚未经过 Apple 公证，浏览器下载后首次启动可能提示“Apple 无法验证 ArkSide.app 是否包含恶意软件”。确认应用来自本项目的 GitHub Releases 后，点击弹窗中的“完成”，打开“系统设置 → 隐私与安全性”，向下滚动至“安全性”，找到 ArkSide 的拦截提示并点击“仍要打开”，按系统提示验证身份，再点击“打开”。允许后，后续通常可以直接双击启动。首次截图仍需按上述步骤单独授予录屏权限并重启助手。
 
 ## 自定义干员标签与适用副盟约
 
