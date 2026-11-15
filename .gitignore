@@ -12,3 +12,5 @@ TestResults/
 .venv-recognition/
 __pycache__/
 *.pyc
+# 历史验证报告与重新运行产生的证据保存在本地 artifacts/。
+/tools/offline_recognition/verification/

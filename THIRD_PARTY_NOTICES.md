@@ -56,6 +56,6 @@ RapidOCR 安装包自带以下模型；ArkSide 在本机读取它们，不在运
 - `ch_ppocr_mobile_v2.0_cls_infer.onnx`
 - `ch_PP-OCRv4_rec_infer.onnx`
 
-模型随 RapidOCR 发行包提供，来源关联 [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)；具体模型信息与哈希见 [原始识别证据](https://github.com/xiaogewzw/ArkSide/blob/main/tools/offline_recognition/verification/v2/original-evidence.json)。PySide6 只用于独立开发验证界面，不进入正式应用包。
+模型随 RapidOCR 发行包提供，来源关联 [PaddleOCR](https://github.com/PaddlePaddle/PaddleOCR)；实际使用的模型信息与哈希可通过离线识别 CLI 的 `--evidence-dir` 参数导出至本地 `artifacts/`。PySide6 只用于独立开发验证界面，不进入正式应用包。
 
 正式包保留已收集的 Python 发行包元数据与许可文件，可在 `recognition/worker/_internal` 下查阅（macOS 对应 `Contents/Resources/recognition/worker/_internal`）。

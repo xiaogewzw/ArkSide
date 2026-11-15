@@ -83,4 +83,4 @@ python -m tools.offline_recognition.verify --output-dir artifacts/release-checks
 
 ## 验证记录
 
-发布准备验证与真机反馈见 [TESTING.md](TESTING.md)。离线回归历史保存在 `tools/offline_recognition/verification/v2`、`v3`、`v4`；每次重新执行产生的大量截图和日志写入被 Git 忽略的 `artifacts/`。
+发布准备验证与真机反馈见 [TESTING.md](TESTING.md)。历史离线回归报告可在 Git 历史中查阅，当前源码不再维护生成的报告快照。重新执行产生的报告、截图和日志统一写入被 Git 忽略的 `artifacts/`；CI 报告通过 Actions 的 verification 附件提供。识别回归使用的截图和预期结果继续保留在仓库中。

@@ -12,10 +12,10 @@
 | GitHub Windows 正式包、识别回放和启动检查 | 成功 | [Package ArkSide 43611524086](https://github.com/xiaogewzw/ArkSide/actions/runs/43611524086) |
 | 本机 .NET Release 测试 | 82 通过、0 失败、1 项 Windows 原生 API 测试在 Mac 上跳过 | 2026-11-15 本机复核 |
 | 本机离线识别回归 | 33 通过、0 失败、0 错误 | 2026-11-15 本机复核；输出在 `artifacts/release-checks/pre-release-review-20261115/` |
-| 历史 Mac 发布包 worker 回放 | 36 项通过 | [v4 发布包报告](tools/offline_recognition/verification/v4/packaged-verification.json) |
-| 历史 Mac 发布包 C# 服务调用 | 6 项通过 | [v4 服务报告](tools/offline_recognition/verification/v4/dotnet-service.json) |
+| 历史 Mac 发布包 worker 回放 | 36 项通过 | v4 历史报告（可在 Git 历史中查阅） |
+| 历史 Mac 发布包 C# 服务调用 | 6 项通过 | v4 历史报告（可在 Git 历史中查阅） |
 
-Windows 游戏截图在 Mac 上回放只验证识别算法；其结果不等于 Windows 原生窗口采集验证。历史报告的执行时间及 worker 哈希仅对应当时构建。
+Windows 游戏截图在 Mac 上回放只验证识别算法；其结果不等于 Windows 原生窗口采集验证。历史报告的执行时间及 worker 哈希仅对应当时构建。生成的历史 JSON 报告已从当前源码移除；后续报告保存在本机 `artifacts/` 或对应 Actions 运行的 verification 附件中。
 
 ## 本次发布配置改动
 
