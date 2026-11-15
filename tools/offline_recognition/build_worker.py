@@ -25,8 +25,13 @@ def main():
                "--distpath", str(build / "dist"), "--workpath", str(build / "work"),
                "--specpath", str(build), "--collect-data", "rapidocr_onnxruntime",
                "--collect-binaries", "onnxruntime"]
-    for package in ("rapidocr-onnxruntime", "opencv-python", "onnxruntime", "numpy"):
-        command.extend(["--copy-metadata", package])
+    # Keep distribution metadata and bundled license files for runtime packages,
+    # their dependencies, and the PyInstaller bootloader distribution.
+    runtime_packages = [line.strip().split("==", 1)[0]
+                        for line in (ROOT / "tools/offline_recognition/requirements-core.txt").read_text().splitlines()
+                        if line.strip() and not line.lstrip().startswith("#")]
+    for package in (*runtime_packages, "pyinstaller"):
+        command.extend(["--recursive-copy-metadata", package])
     for package in ("PySide6", "PyQt5", "PyQt6", "tkinter", "matplotlib"):
         command.extend(["--exclude-module", package])
     command.append(str(ROOT / "tools/offline_recognition/worker_entry.py"))

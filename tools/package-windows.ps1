@@ -7,6 +7,8 @@ if (![System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([System.R
 }
 if (Test-Path $OutputDirectory) { throw "输出目录已存在，请选择新的空目录：$OutputDirectory" }
 function Assert-Success { if ($LASTEXITCODE -ne 0) { throw "构建命令失败，退出码 $LASTEXITCODE" } }
+$appVersion = python tools/release_metadata.py version
+Assert-Success
 dotnet restore src/GameSidebar.App/GameSidebar.App.csproj -p:RuntimeIdentifier=win-x64 -p:SelfContained=true --locked-mode
 Assert-Success
 dotnet publish src/GameSidebar.App/GameSidebar.App.csproj -c Release -r win-x64 --self-contained true --no-restore -p:ArkSideProduction=true -p:DebugType=None -o $OutputDirectory
@@ -23,10 +25,14 @@ foreach ($excluded in @('GameSidebar.App.exe', 'recognition/python', 'target-gam
     if (Test-Path (Join-Path $OutputDirectory $excluded)) { throw "发现开发文件：$excluded" }
 }
 Copy-Item 'Windows-正式版测试清单.md' (Join-Path $OutputDirectory 'Windows-checklist.md')
+Copy-Item 'THIRD_PARTY_NOTICES.md' (Join-Path $OutputDirectory 'THIRD_PARTY_NOTICES.md')
+Copy-Item 'README.md' (Join-Path $OutputDirectory 'README.md')
+python tools/release_metadata.py manifest --platform Windows-x64 --output "$OutputDirectory/release.json"
+Assert-Success
 python -m tools.offline_recognition.verify_packaged --app-dir $OutputDirectory --output-dir artifacts/release-checks/windows-worker
 Assert-Success
 $publishedApp = (Resolve-Path $OutputDirectory).Path
-dotnet run --project tools/GameSidebar.RecognitionCheck/GameSidebar.RecognitionCheck.csproj -c Release "-p:RecognitionAppDirectory=$publishedApp" -- $publishedApp artifacts/release-checks/windows-service.json '干员数据/识别测试/测试截图.png' '干员数据/识别测试/识别结果.json' '干员数据/识别测试/游戏内截图-02.png' '干员数据/识别测试/识别结果-02.json'
+dotnet run --project tools/GameSidebar.RecognitionCheck/GameSidebar.RecognitionCheck.csproj -c Release "-p:RecognitionAppDirectory=$publishedApp" -- $publishedApp artifacts/release-checks/windows-service.json '干员数据/识别测试/测试截图.png' '干员数据/识别测试/识别结果.json' '干员数据/识别测试/游戏内截图-02.png' '干员数据/识别测试/识别结果-02.json' '干员数据/识别测试/游戏内截图-03.png' '干员数据/识别测试/识别结果-03.json'
 Assert-Success
 # Exercise startup using the self-contained executable, without dotnet or Python launchers.
 $appProcess = Start-Process -FilePath (Join-Path $publishedApp 'ArkSide.exe') -WorkingDirectory $env:TEMP -PassThru
@@ -44,8 +50,9 @@ finally {
         if (!$appProcess.WaitForExit(10000)) { $appProcess.Kill(); $appProcess.WaitForExit() }
     }
 }
-$archive = Join-Path (Split-Path $OutputDirectory -Parent) 'ArkSide-Windows-x64.zip'
+$archive = Join-Path (Split-Path $OutputDirectory -Parent) "ArkSide-v$appVersion-Windows-x64.zip"
 Compress-Archive -Path $OutputDirectory -DestinationPath $archive -Force
 $hash = (Get-FileHash $archive -Algorithm SHA256).Hash.ToLowerInvariant()
 "$hash  $([IO.Path]::GetFileName($archive))" | Set-Content "$archive.sha256" -Encoding ascii
+Copy-Item (Join-Path $OutputDirectory 'release.json') (Join-Path (Split-Path $OutputDirectory -Parent) 'Windows-x64-release.json')
 Write-Output $archive

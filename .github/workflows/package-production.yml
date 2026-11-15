@@ -1,19 +1,38 @@
 name: Package ArkSide
 on:
   push:
-    branches: ['codex/package-arkside']
+    branches: ['main', 'codex/package-arkside']
   workflow_dispatch:
+  workflow_call:
+    inputs:
+      source_ref:
+        description: Exact source commit to package
+        required: true
+        type: string
 permissions:
   contents: read
 env:
   PYTHONUTF8: '1'
 jobs:
-  windows:
-    runs-on: windows-2025
+  package:
+    name: ${{ matrix.platform }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - platform: macOS-arm64
+            runner: macos-15
+            artifact: ArkSide-macOS-arm64
+          - platform: Windows-x64
+            runner: windows-2025
+            artifact: ArkSide-Windows-x64
+    runs-on: ${{ matrix.runner }}
     env:
       ContinuousIntegrationBuild: true
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.source_ref || github.sha }}
       - uses: actions/setup-dotnet@v4
         with:
           global-json-file: global.json
@@ -21,21 +40,52 @@ jobs:
         with:
           python-version: '3.12'
       - run: dotnet restore GameSidebar.sln --locked-mode
-      - run: dotnet test GameSidebar.sln -c Release --no-restore --logger "trx;LogFilePrefix=windows" --results-directory artifacts/release-checks/tests
-      - run: python -m pip install -r tools/offline_recognition/requirements-build.txt
-      - name: Verify offline recognition regressions
-        run: python -m tools.offline_recognition.verify --output-dir artifacts/release-checks/windows-regressions
-      - run: ./tools/package-windows.ps1
+      - run: dotnet test GameSidebar.sln -c Release --no-restore --logger "trx;LogFilePrefix=package" --results-directory artifacts/release-checks/tests
+      - name: Prepare macOS recognition dependencies
+        if: runner.os == 'macOS'
+        run: |
+          python -m venv .venv-recognition
+          .venv-recognition/bin/python -m pip install -r tools/offline_recognition/requirements-build.txt
+          .venv-recognition/bin/python -m tools.offline_recognition.verify --output-dir artifacts/release-checks/macos-regressions
+      - name: Prepare Windows recognition dependencies
+        if: runner.os == 'Windows'
+        run: |
+          python -m pip install -r tools/offline_recognition/requirements-build.txt
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          python -m tools.offline_recognition.verify --output-dir artifacts/release-checks/windows-regressions
+      - name: Package and verify macOS app
+        if: runner.os == 'macOS'
+        run: tools/package-macos.sh
+      - name: Package and verify Windows app
+        if: runner.os == 'Windows'
+        run: ./tools/package-windows.ps1
         shell: pwsh
+      - name: Ensure packaging did not change tracked source
+        run: git diff --exit-code
       - uses: actions/upload-artifact@v4
+        if: runner.os == 'macOS'
         with:
-          name: ArkSide-Windows-x64
+          name: ${{ matrix.artifact }}
           if-no-files-found: error
           path: |
-            artifacts/release/windows/ArkSide-Windows-x64.zip
-            artifacts/release/windows/ArkSide-Windows-x64.zip.sha256
+            artifacts/release/ArkSide-v*-macOS-arm64.zip
+            artifacts/release/ArkSide-v*-macOS-arm64.zip.sha256
+            artifacts/release/macOS-arm64-release.json
+      - uses: actions/upload-artifact@v4
+        if: runner.os == 'Windows'
+        with:
+          name: ${{ matrix.artifact }}
+          if-no-files-found: error
+          path: |
+            artifacts/release/windows/ArkSide-v*-Windows-x64.zip
+            artifacts/release/windows/ArkSide-v*-Windows-x64.zip.sha256
+            artifacts/release/windows/Windows-x64-release.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: ArkSide-Windows-verification
-          path: artifacts/release-checks
+          name: ArkSide-${{ matrix.platform }}-verification
+          path: |
+            artifacts/release-checks/**/*.trx
+            artifacts/release-checks/**/verification.json
+            artifacts/release-checks/*-service.json
+            artifacts/release-checks/*-startup.json

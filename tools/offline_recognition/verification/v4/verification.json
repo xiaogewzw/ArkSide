@@ -1,0 +1,188 @@
+{
+  "passed": true,
+  "test_count": 33,
+  "failures": 0,
+  "errors": 0,
+  "python_network_attempts": 0,
+  "platform": "macOS-27.0.1-arm64-arm-64bit",
+  "python": "3.12.15",
+  "total_seconds": 60.415,
+  "sample_exact_match": true,
+  "sample_sha256": "e45bb31478b599fd0407d4e2f582df92f44461ce1b5ddbf883887657cb154ac1",
+  "expected_sha256": "da470e235ed656e1b126e514b9b5be21942c87af22eaeea4845a9b46845f2d06",
+  "variant_recognition_seconds": {
+    "brightness_080": 1.2491,
+    "translated": 1.3687,
+    "jpeg_080": 1.1937,
+    "scale_075": 1.0364,
+    "scale_125": 1.1552,
+    "client_crop": 1.3907
+  },
+  "tests": [
+    {
+      "test": "tools.offline_recognition.tests.test_domain.RuleTests.test_all_main_banned_even_when_vice_available",
+      "passed": true,
+      "seconds": 0.0
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_domain.RuleTests.test_both_empty_is_available",
+      "passed": true,
+      "seconds": 0.0
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_domain.RuleTests.test_no_main_and_all_vice_banned",
+      "passed": true,
+      "seconds": 0.0
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_domain.RuleTests.test_no_main_and_one_vice_available",
+      "passed": true,
+      "seconds": 0.0
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_domain.RuleTests.test_nonempty_main_has_priority_over_banned_vice",
+      "passed": true,
+      "seconds": 0.0
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_domain.RuleTests.test_one_main_available_is_enough",
+      "passed": true,
+      "seconds": 0.0
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_domain.RuleTests.test_operator_data_is_valid_and_complete",
+      "passed": true,
+      "seconds": 0.0009
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_domain.RuleTests.test_unknown_ban_is_rejected",
+      "passed": true,
+      "seconds": 0.0015
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_all_labels_are_recognized_without_correction",
+      "passed": true,
+      "seconds": 0.0001
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_blank_image_is_rejected",
+      "passed": true,
+      "seconds": 0.3783
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_brightness_080",
+      "passed": true,
+      "seconds": 1.2525
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_changed_icon_changes_bans_and_operator_lists",
+      "passed": true,
+      "seconds": 1.244
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_confirmation_layout_is_still_detected",
+      "passed": true,
+      "seconds": 0.0
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_gray_foreground_tolerates_small_green_heading_without_shape_detection",
+      "passed": true,
+      "seconds": 0.0003
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_grayscale_image_is_rejected",
+      "passed": true,
+      "seconds": 1.3369
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_image_translated_by_padding",
+      "passed": true,
+      "seconds": 1.3715
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_in_game_layout_does_not_fill_blank_cells_from_vocabulary",
+      "passed": true,
+      "seconds": 1.2169
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_in_game_layout_missing_bottom_row_is_rejected",
+      "passed": true,
+      "seconds": 0.8207
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_in_game_single_main_row_capture_sizes",
+      "passed": true,
+      "seconds": 6.3563
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_in_game_single_main_row_merged_labels",
+      "passed": true,
+      "seconds": 1.0631
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_jpeg_quality_080",
+      "passed": true,
+      "seconds": 1.2092
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_missing_local_model_is_rejected",
+      "passed": true,
+      "seconds": 0.0015
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_missing_panel_is_rejected",
+      "passed": true,
+      "seconds": 1.109
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_real_capture_erased_merged_names_are_not_inferred",
+      "passed": true,
+      "seconds": 1.2595
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_real_mac_and_windows_captures",
+      "passed": true,
+      "seconds": 26.6789
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_sample_exact_json_including_list_order",
+      "passed": true,
+      "seconds": 0.0
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_scale_075",
+      "passed": true,
+      "seconds": 1.0431
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_scale_125",
+      "passed": true,
+      "seconds": 1.1612
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_uncertain_color_is_rejected",
+      "passed": true,
+      "seconds": 0.005
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_user_screenshot_at_capture_resolution",
+      "passed": true,
+      "seconds": 0.9498
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_user_screenshot_capture_sizes",
+      "passed": true,
+      "seconds": 7.1382
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_user_screenshot_original",
+      "passed": true,
+      "seconds": 1.5312
+    },
+    {
+      "test": "tools.offline_recognition.tests.test_vision.VisionTests.test_window_title_and_outer_border_removed",
+      "passed": true,
+      "seconds": 1.3931
+    }
+  ]
+}

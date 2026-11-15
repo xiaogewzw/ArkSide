@@ -1,11 +1,11 @@
 # ArkSide Windows 正式界面测试
 
-适用于 `Package ArkSide` 工作流生成的 `ArkSide-Windows-x64.zip`。这是待真机验证的构建，不代表已完成 Windows 验收。旧 B2 清单针对开发诊断界面，不用于本包。
+适用于 `Package ArkSide` 工作流生成的 `ArkSide-v1.0.0-Windows-x64.zip`。本文件是可重复使用的验收模板，结果栏由测试者按对应提交填写；当前发布准备与用户反馈见 [TESTING.md](https://github.com/xiaogewzw/ArkSide/blob/main/TESTING.md)。旧 B2 清单针对开发诊断界面，不用于本包。
 
 ## 下载与运行
 
 1. 打开对应提交的 GitHub Actions 运行页，确认 `Package ArkSide` 成功，下载 `ArkSide-Windows-x64` 附件并解压，取得应用 ZIP 和 `.sha256` 校验文件。
-2. PowerShell 执行 `Get-FileHash .\ArkSide-Windows-x64.zip -Algorithm SHA256`，与校验文件对比。
+2. PowerShell 执行 `Get-FileHash .\ArkSide-v1.0.0-Windows-x64.zip -Algorithm SHA256`，与校验文件对比；正式 Release 使用统一的 `SHA256SUMS.txt`。
 3. 将应用 ZIP 完整解压到新的目录，进入 `ArkSide` 文件夹双击 `ArkSide.exe`。不要只复制 exe，也不要使用 GitHub 的 Source code ZIP。无需额外安装 .NET 或 Python。
 4. 记录提交 SHA、Windows 版本、游戏运行方式、显示缩放与显示器数量；可顺带使用带中文及空格的解压路径。
 

@@ -1,5 +1,7 @@
 # 离线盟约识别验证
 
+当前应用使用与发布说明见 [项目 README](../../README.md) 和 [发布指南](../../RELEASING.md)。本页保留算法说明与分阶段验证证据，各阶段测试数量和运行边界以对应报告为准。
+
 ## 2026-11-14 三张真实截图的列对齐修复
 
 `windowsTest/` 的 Xnip 图在原始分辨率可以识别，但缩放和窗口裁剪后会触发列间距偏差。17:28 的应用日志记录了 1097×720 输入：主盟约估算间距 76.5，完整副盟约行实际间距约 73.5，越靠右裁剪偏移越大，重试读成“准多利亚”“比利亚”“塔尼亚”。Xnip 的 1177 / 1280 像素版本及 Windows 134711 图的 942 / 1097 / 1131 / 1177 像素版本均复现了同类失败。
@@ -32,7 +34,7 @@
 
 ## 主程序构建与接入
 
-主程序通过 `IOperatorRecognizer` 调用本地 CLI，传递临时 PNG 和数据目录，读取 UTF-8 JSON 并校验统计与名单一致性。识别限时 60 秒；换绑、几何变化、最小化或退出会取消任务并结束子进程，临时截图会在任务结束后删除。识别失败时不保留旧名单。
+主程序通过 `IOperatorRecognizer` 调用本地 CLI，传递临时 PNG 和数据目录，读取 UTF-8 JSON 并校验统计与名单一致性。识别限时 60 秒。截图采集期间校验目标窗口；取得截图后，OCR 可继续处理已有画面，换绑和游戏丢失不清空已完成的推荐。再次识别期间及失败后保留上次成功结果，成功后整体替换；手动清空或应用退出会取消在途任务，临时截图在任务结束后删除。
 
 Windows 发布包中 `recognition/worker/ArkSide.Recognition.exe` 包含 Python、依赖和 OCR 模型。Mac 对应目录为 `.app/Contents/Resources/recognition/worker/`，避免 Python 的原生库目录被应用签名器误判为代码包。主程序旁的 `recognition/data/` 包含两份干员 JSON（Mac 在 `Contents/MacOS/recognition/data/`）。开发构建同时复制核心 Python 源码，可使用仓库内的 `.venv-recognition`，或通过 `ARKSIDE_RECOGNITION_PYTHON` 指定解释器绝对路径。
 
@@ -116,7 +118,13 @@ python -m pip install --no-index --find-links /path/to/offline-wheelhouse \
 
 ## 验证证据与边界
 
-当前版本的实际验收记录：
+最新列对齐修复的实际验收记录（macOS 离线回放）：
+
+- [33 项回归报告](verification/v4/verification.json)
+- [36 项发布包回放检查](verification/v4/packaged-verification.json)
+- [发布包 C# 服务的 6 次调用核对](verification/v4/dotnet-service.json)
+
+早期取色修复的历史记录：
 
 - [26 项回归报告](verification/v2/verification.json)
 - [原样张结果](verification/v2/original-result.json)
