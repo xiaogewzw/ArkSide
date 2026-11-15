@@ -14,3 +14,13 @@ __pycache__/
 *.pyc
 # 历史验证报告与重新运行产生的证据保存在本地 artifacts/。
 /tools/offline_recognition/verification/
+# 构建、发布与测试过程文档仅保留在本机。
+/CHANGELOG.md
+/DEVELOPMENT.md
+/RELEASING.md
+/TESTING.md
+/Windows-B2-测试清单.md
+/Windows-正式版测试清单.md
+/release-notes.md
+/tools/offline_recognition/README.md
+/ENVIRONMENT.md

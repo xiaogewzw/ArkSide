@@ -69,7 +69,7 @@ jobs:
           unzip -tq "ArkSide-$RELEASE_TAG-macOS-arm64.zip"
           unzip -tq "ArkSide-$RELEASE_TAG-Windows-x64.zip"
           cd ../..
-          cp release-notes.md artifacts/release-download/RELEASE_NOTES.md
+          printf 'ArkSide %s\n\n下载对应平台的应用 ZIP，并使用 SHA256SUMS.txt 核对文件。\n\n使用说明：https://github.com/%s/blob/%s/README.md\n\n公开草稿前，请确认双平台最终下载包，并补充本版本更新及已知问题。\n' "$RELEASE_TAG" "$GH_REPO" "$SOURCE_SHA" > artifacts/release-download/RELEASE_NOTES.md
           printf '\n源码提交：`%s`\n\n构建记录：https://github.com/%s/actions/runs/%s\n' "$SOURCE_SHA" "$GH_REPO" "$GITHUB_RUN_ID" >> artifacts/release-download/RELEASE_NOTES.md
       - name: Create draft for manual review and publication
         run: |

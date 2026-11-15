@@ -24,7 +24,6 @@ foreach ($required in @('ArkSide.exe', 'ArkSide.dll', 'recognition/worker/ArkSid
 foreach ($excluded in @('GameSidebar.App.exe', 'recognition/python', 'target-game.example.json')) {
     if (Test-Path (Join-Path $OutputDirectory $excluded)) { throw "发现开发文件：$excluded" }
 }
-Copy-Item 'Windows-正式版测试清单.md' (Join-Path $OutputDirectory 'Windows-checklist.md')
 Copy-Item 'THIRD_PARTY_NOTICES.md' (Join-Path $OutputDirectory 'THIRD_PARTY_NOTICES.md')
 Copy-Item 'README.md' (Join-Path $OutputDirectory 'README.md')
 python tools/release_metadata.py manifest --platform Windows-x64 --output "$OutputDirectory/release.json"
