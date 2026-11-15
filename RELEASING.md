@@ -41,6 +41,14 @@ python -m tools.offline_recognition.verify --output-dir artifacts/release-checks
 
 两个脚本都会附带用户说明和第三方来源说明。离线 worker 必须在目标平台构建，不能用 macOS 交叉生成 Windows 的 Python 原生组件。
 
+## 可编辑干员数据
+
+正式应用首次运行时，将包内的 `干员详细信息.json` 和 `干员禁用规则.json` 作为默认模板，复制到用户本地应用数据目录下的 `ArkSide/recognition/data`；Windows 为 `%LocalAppData%\ArkSide\recognition\data`，macOS 为 `~/Library/Application Support/ArkSide/recognition/data`。推荐列表和 OCR 使用相同的外部目录，头像与模型继续从包内读取。
+
+初始化只补齐不存在的文件，已有用户文件不会在升级、重启或读取失败时被覆盖。默认模板更新后，已有用户 JSON 仍保留旧内容；需要采用新版默认数据时，退出助手，备份并移走对应用户文件，再启动自动补齐。用户可在首次启动前把旧包内自定义 JSON 复制到用户目录，以保留原有修改。开发构建继续读取输出目录中的数据。
+
+打包检查默认使用包内模板，以免受构建机用户配置影响。`RecognitionCheck` 也支持 `--data-dir 外部目录`，会像正式程序一样初始化缺失 JSON，再通过该目录调用实际 worker；可在临时目录内验证自定义数据，避免改变真实用户配置。已有 `.app` 的签名在编辑外部 JSON 后应保持有效。
+
 ## GitHub 工作流
 
 | 工作流 | 触发条件 | 结果 |

@@ -34,6 +34,8 @@ Assert-Success
 $publishedApp = (Resolve-Path $OutputDirectory).Path
 dotnet run --project tools/GameSidebar.RecognitionCheck/GameSidebar.RecognitionCheck.csproj -c Release "-p:RecognitionAppDirectory=$publishedApp" -- $publishedApp artifacts/release-checks/windows-service.json '干员数据/识别测试/测试截图.png' '干员数据/识别测试/识别结果.json' '干员数据/识别测试/游戏内截图-02.png' '干员数据/识别测试/识别结果-02.json' '干员数据/识别测试/游戏内截图-03.png' '干员数据/识别测试/识别结果-03.json'
 Assert-Success
+python -m tools.offline_recognition.verify_external_data --app-dir $publishedApp --output-dir artifacts/release-checks/windows-external-data
+Assert-Success
 # Exercise startup using the self-contained executable, without dotnet or Python launchers.
 $appProcess = Start-Process -FilePath (Join-Path $publishedApp 'ArkSide.exe') -WorkingDirectory $env:TEMP -PassThru
 try {

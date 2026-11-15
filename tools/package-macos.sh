@@ -59,6 +59,7 @@ dotnet run --project tools/GameSidebar.RecognitionCheck/GameSidebar.RecognitionC
   '干员数据/识别测试/测试截图.png' '干员数据/识别测试/识别结果.json' \
   '干员数据/识别测试/游戏内截图-02.png' '干员数据/识别测试/识别结果-02.json' \
   '干员数据/识别测试/游戏内截图-03.png' '干员数据/识别测试/识别结果-03.json'
+"$recognition_python" -m tools.offline_recognition.verify_external_data --app-dir "$published_app" --output-dir artifacts/release-checks/macos-external-data
 codesign --verify --deep --strict "$staged_app"
 # Only replace this generated product after the entire new bundle is built and signed.
 if [[ -e "$app_path" ]]; then

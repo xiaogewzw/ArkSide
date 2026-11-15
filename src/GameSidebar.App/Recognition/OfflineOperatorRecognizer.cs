@@ -3,15 +3,17 @@ using System.Diagnostics;
 using System.Text;
 using System.Text.Json;
 using GameSidebar.Application.Recognition;
+using GameSidebar.App.Storage;
 using Microsoft.Extensions.Logging;
 
 namespace GameSidebar.App.Recognition;
 
 /// <summary>Runs the local OpenCV/RapidOCR worker; no network or model downloads.</summary>
-public sealed class OfflineOperatorRecognizer(ILogger<OfflineOperatorRecognizer> logger) : IOperatorRecognizer
+public sealed class OfflineOperatorRecognizer(ILogger<OfflineOperatorRecognizer> logger, OperatorCatalogStore catalogStore) : IOperatorRecognizer
 {
     public async Task<OperatorRecognitionResult> RecognizeAsync(byte[] png, CancellationToken cancellationToken)
     {
+        catalogStore.EnsureDataFiles();
         var start = CreateStartInfo();
         var temporary = Directory.CreateTempSubdirectory("ArkSide-recognition-");
         try
@@ -20,7 +22,7 @@ public sealed class OfflineOperatorRecognizer(ILogger<OfflineOperatorRecognizer>
             await File.WriteAllBytesAsync(imagePath, png, cancellationToken);
             start.ArgumentList.Add(imagePath);
             start.ArgumentList.Add("--data-dir");
-            start.ArgumentList.Add(Path.Combine(AppContext.BaseDirectory, "recognition", "data"));
+            start.ArgumentList.Add(catalogStore.DirectoryPath);
             using var process = new Process { StartInfo = start };
             try
             {

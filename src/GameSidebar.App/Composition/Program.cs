@@ -66,7 +66,13 @@ internal static class Program
         else builder.Services.AddSingleton<IGameCaptureBackend, MaaCaptureBackend>();
         builder.Services.AddSingleton<CaptureCoordinator>();
         builder.Services.AddSingleton<IOperatorRecognizer, OfflineOperatorRecognizer>();
+#if ARKSIDE_PRODUCTION
+        builder.Services.AddSingleton(_ => new OperatorCatalogStore(
+            Path.Combine(settings.DirectoryPath, "recognition", "data"),
+            Path.Combine(AppContext.BaseDirectory, "recognition", "data")));
+#else
         builder.Services.AddSingleton(_ => new OperatorCatalogStore());
+#endif
         builder.Services.AddTransient<OperatorImportViewModel>();
 #if !ARKSIDE_PRODUCTION
         builder.Services.AddTransient<OperatorImportWindow>();
@@ -81,6 +87,10 @@ internal static class Program
             "GameSidebar {Version}; OS {OS}; architecture {Architecture}; mode {Mode}",
             typeof(Program).Assembly.GetName().Version, Environment.OSVersion,
             System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture, demo ? "Demo" : OperatingSystem.IsMacOS() ? "macOS" : "Windows");
+        _host.Services.GetRequiredService<ILoggerFactory>().CreateLogger("Startup").LogInformation(
+            "Operator data: {DataDirectory}; portraits: {PortraitDirectory}",
+            _host.Services.GetRequiredService<OperatorCatalogStore>().DirectoryPath,
+            _host.Services.GetRequiredService<OperatorCatalogStore>().PortraitDirectory);
         try { AppBuilder.Configure<SidebarApplication>().UsePlatformDetect().LogToTrace().StartWithClassicDesktopLifetime(args); }
         finally { _host.Dispose(); _host = null; }
     }

@@ -36,7 +36,9 @@
 
 主程序通过 `IOperatorRecognizer` 调用本地 CLI，传递临时 PNG 和数据目录，读取 UTF-8 JSON 并校验统计与名单一致性。识别限时 60 秒。截图采集期间校验目标窗口；取得截图后，OCR 可继续处理已有画面，换绑和游戏丢失不清空已完成的推荐。再次识别期间及失败后保留上次成功结果，成功后整体替换；手动清空或应用退出会取消在途任务，临时截图在任务结束后删除。
 
-Windows 发布包中 `recognition/worker/ArkSide.Recognition.exe` 包含 Python、依赖和 OCR 模型。Mac 对应目录为 `.app/Contents/Resources/recognition/worker/`，避免 Python 的原生库目录被应用签名器误判为代码包。主程序旁的 `recognition/data/` 包含两份干员 JSON（Mac 在 `Contents/MacOS/recognition/data/`）。开发构建同时复制核心 Python 源码，可使用仓库内的 `.venv-recognition`，或通过 `ARKSIDE_RECOGNITION_PYTHON` 指定解释器绝对路径。
+Windows 发布包中 `recognition/worker/ArkSide.Recognition.exe` 包含 Python、依赖和 OCR 模型。Mac 对应目录为 `.app/Contents/Resources/recognition/worker/`，避免 Python 的原生库目录被应用签名器误判为代码包。主程序旁的 `recognition/data/` 包含默认 JSON 模板和头像（Mac 在 `Contents/MacOS/recognition/data/`）。正式应用将缺失的两份 JSON 初始化到用户本地应用数据目录 `ArkSide/recognition/data`，已有文件保持原样；推荐列表与 OCR 的 `--data-dir` 使用该外部目录，头像仍读取包内资源。自定义标签不修改应用包。路径、恢复默认和升级说明见项目 README。
+
+开发构建继续读取输出目录中的数据，同时复制核心 Python 源码，可使用仓库内的 `.venv-recognition`，或通过 `ARKSIDE_RECOGNITION_PYTHON` 指定解释器绝对路径。打包回放默认使用包内模板，另由 `verify_external_data` 在临时外部目录验证实际 C# 服务和冻结 worker 共用自定义 JSON，并检查包内模板未变化。
 
 ```sh
 # 只构建主程序和离线组件，不执行 OCR。

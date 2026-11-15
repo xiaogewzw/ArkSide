@@ -6,26 +6,13 @@ ArkSide 是明日方舟的桌面侧栏助手：连接游戏窗口，在盟约确
 
 ## 下载
 
-到 [GitHub Releases](https://github.com/xiaogewzw/ArkSide/releases) 下载对应平台的应用 ZIP。`v1.0.0` 为本次准备发布的首个正式版本；发布前，Releases 中的 B2 / Phase 1 是旧测试版。
+到 [GitHub Releases](https://github.com/xiaogewzw/ArkSide/releases) 下载对应平台的应用 ZIP，支持Windwo x64平台和macOS M系芯片平台。`v1.0.0` 为本次准备发布的首个正式版本。
 
 | 平台 | v1.0.0 应用附件 |
 | --- | --- |
 | Windows x64 | `ArkSide-v1.0.0-Windows-x64.zip` |
 | macOS Apple Silicon | `ArkSide-v1.0.0-macOS-arm64.zip` |
 
-下载应用 ZIP 和 `SHA256SUMS.txt`，核对哈希后完整解压。GitHub 自动提供的 **Source code** 是源码，不是可直接运行的应用。本次不提供 Intel Mac、Windows ARM 或 Linux 包。
-
-在 Windows PowerShell 中校验：
-
-```powershell
-Get-FileHash .\ArkSide-v1.0.0-Windows-x64.zip -Algorithm SHA256
-```
-
-在 macOS 中校验：
-
-```sh
-shasum -a 256 ArkSide-v1.0.0-macOS-arm64.zip
-```
 
 ## 启动和识别
 
@@ -35,26 +22,54 @@ shasum -a 256 ArkSide-v1.0.0-macOS-arm64.zip
 4. 游戏进入所有盟约都显示完整的页面，点击“开始识别”。完成后按标签、副盟约、Rank 和显示排数查看推荐。
 5. 游戏内更换盟约后，再次点击“开始识别”。识别期间和识别失败后会保留上次成功结果；只有识别成功才整体替换，点击“清空数据”可主动清除。
 
-侧栏宽度固定，可以拖动底部调整高度，也可以收起和展开。退出或重新打开游戏后可重新连接，已有结果在本次助手会话内保留。
+## 自定义干员标签与适用副盟约
 
-当前 macOS 包使用本地 ad-hoc 签名，未做 Developer ID 签名和 Apple 公证。网络下载后的首次打开可能被系统拦截；确认下载来源后，可按系统提示在“隐私与安全性”中允许打开。应用包声明最低 macOS 14.0，旧系统和不同硬件的兼容性尚未做完整覆盖。
+修改 `干员详细信息.json`，可以自定义推荐标签，以及干员在不同标签下显示的适用副盟约。正式应用首次运行时，会将默认的两份干员 JSON 复制到以下用户数据目录：
 
-## 模拟器或自定义目标
+- Windows：`%LocalAppData%\ArkSide\recognition\data\干员详细信息.json`，可将目录粘贴到资源管理器地址栏打开。
+- macOS：`~/Library/Application Support/ArkSide/recognition/data/干员详细信息.json`，可在 Finder 中按 `⌘⇧G`，粘贴目录并前往。
 
-正式侧栏没有窗口设置入口。Windows 使用模拟器或其他进程名时，在 `%LocalAppData%\ArkSide\target-game.json` 写入实际承载游戏窗口的 exe 完整路径，然后重启助手：
+同目录还有 `干员禁用规则.json`，识别组件和推荐列表共用这两份配置。头像和 OCR 模型仍由应用包提供。自定义标签只需修改上面的 `干员详细信息.json`，无需重新打包或签名。
+
+在原文件对应位置修改，并保留其他干员与字段。以下以纯烬艾雅法拉为例：
 
 ```json
 {
-  "schemaVersion": 1,
-  "windows": {
-    "executablePath": "D:\\Emulator\\GameWindow.exe"
-  }
+  "allowedTags": ["输出核心", "叠层核心"],
+  "operators": [
+    {
+      "id": "098",
+      "name": "纯烬艾雅法拉",
+      "tag": ["叠层核心"],
+      "tagCovenants": {
+        "叠层核心": ["聚合"]
+      },
+      "portrait": "头像_纯烬艾雅法拉.png",
+      "mainCovenant": ["莱塔尼亚"],
+      "viceCovenant": ["聚合", "远见"],
+      "rank": 5
+    }
+  ]
 }
 ```
 
-替换为本机真实路径；多个匹配窗口时，可增加 `titleRule` 或 `classRule` 缩小范围。配置格式见 [目标配置示例](https://github.com/xiaogewzw/ArkSide/blob/main/assets/target-game.example.json)。
+| 字段 | 自定义规则 |
+| --- | --- |
+| `allowedTags` | 位于文件最外层，与 `operators` 同级，是所有干员共用的标签白名单。新增标签时先在这里登记，再加入相应干员的 `tag`。 |
+| `tag` | 每个干员的标签字符串数组，可以填写多个标签，如 `["输出核心", "叠层核心"]`，该干员会进入对应的多个推荐分组。未列入 `allowedTags` 的标签会被忽略；`[]` 表示不进入任何标签推荐组。 |
+| `tagCovenants` | 字段名末尾有 `s`，内容是“标签名 → 副盟约字符串数组”的对象，用于控制该标签下卡片显示的副盟约。键使用该干员 `tag` 中的标签名，数组中的盟约必须属于该干员的 `viceCovenant`，否则读取失败。单独填写映射不会为干员增加标签。 |
 
-设置、目标配置和日志保存在当前用户本地应用数据目录中的 `ArkSide` 文件夹，日志在其 `logs` 子目录。Windows 为 `%LocalAppData%\ArkSide`，macOS 为 `~/Library/Application Support/ArkSide`。更新应用时保留此目录，应用安装目录中的文件需整套更新。
+示例中，纯烬艾雅法拉属于“叠层核心”组，头像卡片下只显示“聚合”。仍然可以通过副盟约“远见”筛选出她，因为筛选始终匹配完整的 `viceCovenant`；推荐还会受本次禁用结果和 Rank 筛选约束。
+
+- 某个标签没有对应的 `tagCovenants` 配置时，显示完整的 `viceCovenant`；省略整个字段或写成 `{}` 都使用此默认规则。
+- 明确写成 `"叠层核心": []` 时，该标签下显示“无适用副盟约”，干员仍属于这个标签组。
+- 标签去除首尾空白并去重，区分大小写；数组中不能有空字符串。`allowedTags` 缺失或为空时，不显示标签推荐。
+
+使用 UTF-8 保存为合法 JSON，之后点击“开始识别”，应用会重新读取配置并生成推荐。修改前请备份；现有用户 JSON 在重启和升级时均会保留，格式错误会提示“干员详细资料异常”，不会自动覆盖你的文件。
+
+需要恢复随应用提供的默认数据时，退出助手，将用户数据目录中对应的 JSON 备份并移走，下次启动会自动补齐缺失的文件。升级带来新版默认数据时，也可用此方法恢复，再重新应用自定义标签。已有包内修改可在首次运行前将两份 JSON 复制到上述用户目录。
+
+从源码制作默认数据时，修改仓库中的 `干员数据/干员详细信息.json` 后重新构建；新的默认文件不会覆盖已经存在的用户配置。开发模式（未设置 `ArkSideProduction=true`）仍读取构建输出目录中的数据。
 
 ## 常见问题
 
@@ -62,17 +77,10 @@ shasum -a 256 ArkSide-v1.0.0-macOS-arm64.zip
 - **没有截图权限**：在 macOS 系统设置中授权录屏，之后重启助手。
 - **截图异常**：将游戏恢复为可见窗口，确认目标进程正确后重试。
 - **请将游戏画面调整到所有盟约都显示出来**：当前画面不完整或无法可靠识别，返回完整盟约页面后重试。
-- **干员详细资料异常**：重新完整解压应用，确认 `recognition/data` 中的 JSON 和头像目录存在。
+- **干员详细资料异常**：检查上面用户数据目录中的两份 JSON 是否符合格式；需要恢复默认时，先备份并移走出错文件，再启动助手。缺少头像或模型时，重新完整解压应用。
 
 反馈问题请到 [Issues](https://github.com/xiaogewzw/ArkSide/issues)，提供应用版本、系统版本、游戏运行方式、复现步骤，以及对应时间的日志片段。包内 `release.json` 记录版本和源码提交，Mac 位于 `ArkSide.app/Contents/Resources/release.json`，Windows 位于 `ArkSide/release.json`。分享截图和日志前，请去除账号及个人路径信息。
 
 ## 文档和资源来源
 
-- [更新记录](https://github.com/xiaogewzw/ArkSide/blob/main/CHANGELOG.md)
-- [构建、验收与发布指南](https://github.com/xiaogewzw/ArkSide/blob/main/RELEASING.md)
-- [Windows 正式版测试清单](https://github.com/xiaogewzw/ArkSide/blob/main/Windows-%E6%AD%A3%E5%BC%8F%E7%89%88%E6%B5%8B%E8%AF%95%E6%B8%85%E5%8D%95.md)
-- [离线识别说明和回归记录](https://github.com/xiaogewzw/ArkSide/blob/main/tools/offline_recognition/README.md)
-- [开发与历史验收记录](https://github.com/xiaogewzw/ArkSide/blob/main/DEVELOPMENT.md)
-- [第三方依赖与资源来源](https://github.com/xiaogewzw/ArkSide/blob/main/THIRD_PARTY_NOTICES.md)
-
-ArkSide 图标和干员 JSON 由项目作者制作，干员头像取自 [PRTS Wiki](https://prts.wiki/)。相关游戏素材的权利归各自权利人。项目目前未添加项目级开源许可证，第三方组件仍遵循各自许可证。
+ArkSide 图标和干员 JSON 由项目作者制作，干员头像取自 [PRTS Wiki](https://prts.wiki/)。相关游戏素材的权利归各自权利人。

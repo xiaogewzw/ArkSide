@@ -6,16 +6,41 @@ namespace GameSidebar.App.Storage;
 public sealed record OperatorCatalog(IReadOnlyList<TaggedOperator> Operators,
     IReadOnlyList<string> ViceCovenants, IReadOnlyList<string> AllowedTags, string RecognitionSignature);
 
-public sealed class OperatorCatalogStore(string? directory = null)
+public sealed class OperatorCatalogStore(string? directory = null, string? bundledDirectory = null)
 {
     public string DirectoryPath { get; } = directory ?? Path.Combine(AppContext.BaseDirectory, "recognition", "data");
     public string FilePath => Path.Combine(DirectoryPath, "干员详细信息.json");
-    public string PortraitDirectory => Path.Combine(DirectoryPath, "portraits");
+    public string PortraitDirectory => Path.Combine(bundledDirectory ?? DirectoryPath, "portraits");
+
+    public void EnsureDataFiles()
+    {
+        if (bundledDirectory is null) return;
+        Directory.CreateDirectory(DirectoryPath);
+        foreach (var name in new[] { "干员详细信息.json", "干员禁用规则.json" })
+        {
+            var destination = Path.Combine(DirectoryPath, name);
+            if (File.Exists(destination)) continue;
+            // Install a complete file atomically, without overwriting an edit
+            // or another running instance's first-run initialization.
+            var temporary = Path.Combine(DirectoryPath, $".{name}.{Guid.NewGuid():N}.tmp");
+            try
+            {
+                File.Copy(Path.Combine(bundledDirectory, name), temporary);
+                try { File.Move(temporary, destination); }
+                catch (IOException) when (File.Exists(destination)) { }
+            }
+            finally
+            {
+                if (File.Exists(temporary)) File.Delete(temporary);
+            }
+        }
+    }
 
     public OperatorCatalog Load()
     {
         try
         {
+            EnsureDataFiles();
             using var rules = JsonDocument.Parse(File.ReadAllText(Path.Combine(DirectoryPath, "干员禁用规则.json")));
             var options = rules.RootElement.GetProperty("covenantOptions");
             var main = Names(options.GetProperty("mainCovenant"), "主盟约选项");
