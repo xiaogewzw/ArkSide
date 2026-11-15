@@ -4,9 +4,13 @@ ArkSide 是明日方舟的桌面侧栏助手：连接游戏窗口，在盟约确
 
 识别在本机完成，发布包自带 .NET、Python 运行时和 OCR 模型，无需额外安装这些依赖。游戏需要自行启动。
 
+![ArkSide Windows 使用效果：连接明日方舟并显示干员推荐](assets/screenshots/arkside-windows.png)
+
 ## 下载
 
-到 [GitHub Releases](https://github.com/xiaogewzw/ArkSide/releases) 下载对应平台的应用 ZIP，支持Windwo x64平台和macOS M系芯片平台。`v1.0.0` 为本次准备发布的首个正式版本。
+到 [GitHub Releases](https://github.com/xiaogewzw/ArkSide/releases) 下载对应平台的应用 ZIP。支持 Windows x64 和 macOS Apple Silicon（M 系列）。Windows 需要安装 VC++ x64 运行库。macOS 目前仅在 27 上通过真机测试，其他系统版本兼容性待确认。
+
+`v1.0.0` 为本次准备发布的首个正式版本。
 
 | 平台 | v1.0.0 应用附件 |
 | --- | --- |
@@ -73,7 +77,7 @@ ArkSide 是明日方舟的桌面侧栏助手：连接游戏窗口，在盟约确
 
 ## 常见问题
 
-- **没有找到游戏**：先启动游戏，再点击“重新连接”；模拟器场景检查上面的目标配置。
+- **没有找到游戏**：先启动游戏，再点击“重新连接”。
 - **没有截图权限**：在 macOS 系统设置中授权录屏，之后重启助手。
 - **截图异常**：将游戏恢复为可见窗口，确认目标进程正确后重试。
 - **请将游戏画面调整到所有盟约都显示出来**：当前画面不完整或无法可靠识别，返回完整盟约页面后重试。
